@@ -17,8 +17,6 @@ es5-shim@4.6.15                # ECMAScript 5 compatibility for older browsers.
 ecmascript@0.7.2              # Enable ECMAScript2015+ syntax in app code
 shell-server@0.2.3            # Server-side component of the `meteor shell` command
 
-autopublish@1.0.7             # Publish all data to the clients (for prototyping)
-insecure@1.0.7                # Allow all DB writes from clients (for prototyping)
 ethereum:accounts
 ethereum:dapp-styles
 ethereum:elements
@@ -27,3 +25,9 @@ ethereum:blocks
 frozeman:template-var
 less
 react-meteor-data
+kadira:flow-router
+meteortoys:allthings
+ultimatejs:tracker-react
+stolinski:stylus-multi
+accounts-ui
+accounts-password
