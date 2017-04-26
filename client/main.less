@@ -69,8 +69,55 @@
 @fontFamily: 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, 'sans-serif';
 
 // animations
-@animationSpeed: 400ms;
+//@animationSpeed: 400ms;
 
+.route-enter, .route-appear{
+  opacity:0;
+  animation: slideIn 0.6s cubic-bezier()cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.route-leave{
+  animation: slideOut 0.4s cubic-bezier()cubic-bezier(0.165, 0.84, 0.44, 1);
+  opacity:1;
+}
+
+.route-appear{
+  opacity:0;
+  animation: slideUp 0.6s cubic-bezier()cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+@keyframes slideIn{
+    from {
+      opacity: 0;
+      transform: translated3d(-50px,0,0);
+      }
+   to{
+     opacity: 1;
+     transform: translated3d(0,0,0);
+   }
+}
+
+@keyframes slideOut{
+    from {
+      opacity: 1;
+      transform: translated3d(0,0,0);
+      }
+   to{
+     opacity: 0;
+     transform: translated3d(50px,0,0);
+   }
+}
+
+@keyframes slideUp{
+    from {
+      opacity: 0;
+      transform: translated3d(0,60px,0);
+      }
+   to{
+     opacity: 1;
+     transform: translated3d(0,0,0);
+   }
+}
 
 html, body {
   height: 100%;

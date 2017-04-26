@@ -3,9 +3,8 @@ import PropTypes from 'prop-types';
 import {Meteor} from 'meteor/meteor'
 
 import TrackerReact from 'meteor/ultimatejs:tracker-react';
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 
-import { createContainer } from 'meteor/react-meteor-data';
- 
 import { Contracts } from '../api/contracts.js';
 import Contract from './Contract.jsx';
 
@@ -65,15 +64,23 @@ export default class EventWrapper extends TrackerReact(Component) {
 
 
   render() {
+    if(!this.state.subscription.contracts.ready)
+        <div>Loading...</div>
     return (
-      <div>
+       <ReactCSSTransitionGroup
+                component = "div"
+                transitionName="route"
+                transitionEnterTimeout={600}
+                transitionAppearTimeout={600}
+                transitionLeaveTimeout={400}
+                transitionAppear={true}>
             <ul className="dapp-account-list">
                {this.contracts().map((contract)=>{
                   return <Contract key={contract._id} contract = {contract}/>
                }
                )}
-            </ul>  
-     </div>
+           </ul>  
+     </ReactCSSTransitionGroup>
     );
   }
 }

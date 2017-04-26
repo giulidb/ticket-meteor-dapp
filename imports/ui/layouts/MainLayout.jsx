@@ -14,7 +14,7 @@ export const MainLayout = ({content}) => (
                 <nav>
                     <ul>
                         <li><a href="/" className="active"><span>Events</span></a></li>
-                        <li><a href="/about"><span>About</span></a></li>                       
+                        <li><a href="/about"><span>My Tickets</span></a></li>                       
                     </ul>
                 </nav>
             </aside>
