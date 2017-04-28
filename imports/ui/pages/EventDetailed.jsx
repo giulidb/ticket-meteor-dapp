@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 
 import TrackerReact from 'meteor/ultimatejs:tracker-react';
 
-import { Contracts } from '../api/contracts.js';
-import Contract from './Contract.jsx';
+import { Contracts } from '../../api/contracts.js';
+import Contract from '../Contract.jsx';
 
 import {Meteor} from 'meteor/meteor';
 

@@ -1,0 +1,54 @@
+@import './animate.css';
+.route-enter {
+    opacity: 0.01;
+}
+
+.route-enter.route-enter-active {
+    opacity: 1;
+    animation: slideInUp 0.6s ease-in;
+}
+
+.route-leave {
+    opacity: 1;
+}
+
+.route-leave.route-leave-active {
+    opacity: 0.01;
+    animation: slideOutDown 0.4s ease-in;
+}
+
+.route-appear {
+    opacity: 0.01;
+}
+
+.route-appear.route-appear-active {
+    opacity: 1;
+    animation: slideInUp 0.6s ease-in;
+}
+
+.eventload-enter {
+    opacity: 0.01;
+}
+
+.eventload-enter.eventload-enter-active {
+    opacity: 1;
+    animation: slideInRight 0.6s ease-in;
+}
+
+.eventload-leave {
+    opacity: 1;
+}
+
+.eventload-leave.eventload-leave-active {
+    opacity: 0.01;
+    animation: slideOutRight 0.4s ease-in;
+}
+
+.eventload-appear {
+    opacity: 0.01;
+}
+
+.eventload-appear.eventload-appear-active {
+    opacity: 1;
+    animation: slideInRight 0.6s ease-in;
+}
