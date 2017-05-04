@@ -1,33 +1,14 @@
 import React,{Component} from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
-import TrackerReact from 'meteor/ultimatejs:tracker-react';
 
 // Import libraries
 import Web3 from '../../api/ethereum/web3.js';
 
-import { Ethereum_Accounts } from '../../api/ethereum_accounts.js';
 import EthereumAccounts from '../EthereumAccounts.jsx';
 
 
-export default class AccountsSettings extends TrackerReact(Component) {
+export default class AccountsSettings extends Component {
 
-   constructor(){
-    super();
-
-    this.state = {
-      subscription: {
-        accounts: Meteor.subscribe('allAccounts')
-      }
-    }
-
-    
-
-  }
-
-  componentWillUnmount(){
-    this.state.subscription.accounts.stop();
-
-  } 
 
   accounts(){
     EthAccounts.init();
@@ -35,8 +16,6 @@ export default class AccountsSettings extends TrackerReact(Component) {
   }
 
   render() {
-
-     console.log(Ethereum_Accounts.find({}).fetch()); 
 
     return (
           <ReactCSSTransitionGroup

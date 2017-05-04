@@ -1,5 +1,5 @@
-var Conference = artifacts.require("./Conference.sol");
+var Event = artifacts.require("./Event.sol");
+
 module.exports = function(deployer) {
-  deployer.deploy(Conference);
-  //deployer.autolink(); // for linking imports of other contracts
+    deployer.deploy(Event);
 };

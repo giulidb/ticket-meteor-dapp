@@ -5,8 +5,8 @@ import {Meteor} from 'meteor/meteor'
 import TrackerReact from 'meteor/ultimatejs:tracker-react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 
-import { Contracts } from '../../api/contracts.js';
-import Contract from '../Contract.jsx';
+import { Events } from '../../api/events.js';
+import Event from '../Event.jsx';
 
 // Import libraries
 import Web3 from '../../api/ethereum/web3.js';
@@ -24,7 +24,7 @@ export default class EventWrapper extends TrackerReact(Component) {
 
     this.state = {
       subscription: {
-        contracts: Meteor.subscribe('allContracts')
+        events: Meteor.subscribe('allEvents')
       }
     }
 
@@ -33,12 +33,12 @@ export default class EventWrapper extends TrackerReact(Component) {
   }
 
   componentWillUnmount(){
-    this.state.subscription.contracts.stop();
+    this.state.subscription.events.stop();
 
   }
 
-  contracts(){
-    return Contracts.find({}).fetch();
+  events(){
+    return Events.find({}).fetch();
   }
   
   renderContracts() {
@@ -59,17 +59,13 @@ export default class EventWrapper extends TrackerReact(Component) {
     }).catch(function(e) {
         console.log(e);
     });*/
-        return this.contracts().map((contract) => (
-
-      <Contract key={contract._id} contract={contract} />
-
-    ));
+     
 }
 
 
   render() {
      
-    if(!this.state.subscription.contracts.ready)
+    if(!this.state.subscription.events.ready)
         <div>Loading...</div>
     return (
           <ReactCSSTransitionGroup
@@ -80,8 +76,8 @@ export default class EventWrapper extends TrackerReact(Component) {
              transitionAppear={true}
              transitionAppearTimeout={500}>
              <ul className="dapp-account-list">
-                 {this.contracts().map((contract)=>{
-                  return <Contract key={contract._id} contract = {contract}/>
+                 {this.events().map((event)=>{
+                  return <Event key={event._id} event = {event}/>
                   }
                  )}
              </ul> 
