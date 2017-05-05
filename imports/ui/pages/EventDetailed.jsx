@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 
 import TrackerReact from 'meteor/ultimatejs:tracker-react';
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 
 import { Events } from '../../api/events.js';
 import Event from '../Event.jsx';
@@ -37,7 +38,19 @@ export default class EventDetailed extends TrackerReact(Component){
         }
 
         return(
-                <div>{event.address}</div>
+                <ReactCSSTransitionGroup
+                  component="div"
+                  transitionName="route"
+                  transitionEnterTimeout={500}
+                  transitionLeaveTimeout={300}
+                  transitionAppear={true}
+                  transitionAppearTimeout={500}>
+                
+                  <h1>{event.name}</h1>
+                  <h3>{event.location} - {event.date}</h3>
+                  <p>{event.description}</p>
+                  
+                </ReactCSSTransitionGroup>
                 
         )
     }

@@ -27,7 +27,7 @@ export const MainLayout = ({content}) => (
         </div>
    
         <footer className="dapp-footer">
-            <h4>Copyright by Giulia Di Bella - 2017</h4>
+            <h4>Copyrigth &copy; by Giulia Di Bella - 2017</h4>
         </footer>    
 </div>
 

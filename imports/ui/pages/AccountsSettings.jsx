@@ -5,6 +5,8 @@ import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 import Web3 from '../../api/ethereum/web3.js';
 
 import EthereumAccounts from '../EthereumAccounts.jsx';
+import  userRegistry  from '../userRegistry.jsx';
+
 
 
 export default class AccountsSettings extends Component {
@@ -25,13 +27,14 @@ export default class AccountsSettings extends Component {
              transitionLeaveTimeout={300}
              transitionAppear={true}
              transitionAppearTimeout={500}>
-             <h3>My Accounts List</h3>
+             <h1>My Accounts List</h1>
              <ul className="dapp-account-list">
                  {this.accounts().map((account)=>{
                   return <EthereumAccounts key={account._id} account = {account}/>
                   }
                  )}
              </ul> 
+             <userRegistry/>
          </ReactCSSTransitionGroup>
 
     );

@@ -7,8 +7,7 @@ import PropTypes from 'prop-types';
 export default class Event extends Component {
 
   render() {
-    
-
+  
     return (
       <li>
       <button>

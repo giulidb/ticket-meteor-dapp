@@ -40,27 +40,6 @@ export default class EventWrapper extends TrackerReact(Component) {
   events(){
     return Events.find({}).fetch();
   }
-  
-  renderContracts() {
-
-
-      // Conference is an usable abstraction.
-    /*var Conference = contract(Conference_artifacts);
-    Conference.setProvider(web3.currentProvider);
-
-
-    Conference.deployed().then(function(instance) {
-
-    }).then(function(value) {
-        console.log("Conference deployed");
-
-
-
-    }).catch(function(e) {
-        console.log(e);
-    });*/
-     
-}
 
 
   render() {
@@ -75,6 +54,7 @@ export default class EventWrapper extends TrackerReact(Component) {
              transitionLeaveTimeout={300}
              transitionAppear={true}
              transitionAppearTimeout={500}>
+             <h1>Event List </h1>
              <ul className="dapp-account-list">
                  {this.events().map((event)=>{
                   return <Event key={event._id} event = {event}/>
