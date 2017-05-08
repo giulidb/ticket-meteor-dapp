@@ -5,7 +5,6 @@ import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 import Web3 from '../../api/ethereum/web3.js';
 
 import EthereumAccounts from '../EthereumAccounts.jsx';
-import  userRegistry  from '../userRegistry.jsx';
 
 
 
@@ -34,7 +33,6 @@ export default class AccountsSettings extends Component {
                   }
                  )}
              </ul> 
-             <userRegistry/>
          </ReactCSSTransitionGroup>
 
     );

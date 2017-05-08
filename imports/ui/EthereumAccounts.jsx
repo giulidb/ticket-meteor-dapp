@@ -5,7 +5,7 @@ import TrackerReact from 'meteor/ultimatejs:tracker-react';
 
 // Import Components
 import { Ethereum_Accounts } from '../api/ethereum_accounts.js';
-import  userRegistry  from './userRegistry.jsx';
+import  userValue  from './userValue.jsx';
 
 
 
@@ -14,43 +14,31 @@ import Web3 from '../api/ethereum/web3.js';
 import { default as contract } from 'truffle-contract'
 import userRegistry_artifacts from '../api/ethereum/truffle/build/contracts/userRegistry.json'
 
+
+
+var Registry = contract(userRegistry_artifacts);
+Registry.setProvider(web3.currentProvider);
+
 // Contract component - represents a single todo item
 export default class EthereumAccounts extends TrackerReact(Component) {
 
 
-   constructor(){
-    super();
+   constructor(props){
+    super(props);
 
     this.state = {
       subscription: {
         accounts: Meteor.subscribe('allAccounts'),
-        val: " "
-      }
+      },
+      val:''
+
     }
-  }
+
+    this.handleUserRegistry = this.handleUserRegistry.bind(this);
+  } 
 
   componentDidMount(){
-
-        var userRegistry = contract(userRegistry_artifacts);
-        userRegistry.setProvider(web3.currentProvider);
-        var cont;
-
-        userRegistry.at('0x497cfe6b4edbb60cb9123a36f15402d518df2c82').then(function(instance) {
-          cont = instance;
-          console.log(cont);
-          cont.getRights.call("0x12366608B3DBcE8A7bdc7aCc0b520b31dd29C187").then(function(value) {
-            console.log(value);
-                this.state ={
-                  subscription: {val: value}
-                }
-            });    
-            
-
-        }).catch(function(e) {
-            console.log(e);
-        });
-      
-
+      this.handleUserRegistry(this.props.account.address);
   }
 
   componentWillUnmount(){
@@ -62,13 +50,38 @@ export default class EthereumAccounts extends TrackerReact(Component) {
     return Ethereum_Accounts.findOne({address: this.props.account.address});
   }
 
- 
+  async handleUserRegistry(addr) {
+    var that = this;
+   console.log("handle");
+    //const reg = await Registry.deployed();
+    const reg = await Registry.at("0x73CB9365F12f33fFbFfA5f3eD3FEd7699b7F760A").then(
+      function(instance){
+             instance.owner.call().then(function(value){
+               console.log("owner address: " + value );
+             
+             return instance.giveRightToUse.call(addr, {from: "0x12366608B3DBcE8A7bdc7aCc0b520b31dd29C187"}).then(
+               function(result){
+                 console.log("Transaction complete!");
+                 instance.getRight.call(addr).then(
+                   function(value){
+                      console.log(value);
+                   }
+                 );
+               }
+            )
+            });
+      }
+    ).catch(function(e){console.log(e)});
+  }
 
 
   render() {
 
+      let val = this.state.val;
+      console.log(val);
 
       return (
+         
 
           <li>
           <button>
@@ -78,10 +91,10 @@ export default class EthereumAccounts extends TrackerReact(Component) {
                 <span>{EthTools.formatBalance(this.props.account.balance, '0.0,[0] unit', 'ether')}
                       /{EthTools.formatBalance(this.props.account.balance, '0.0,[0]', 'eur')}€
                 </span> 
-                <span>{this.state.subscription.val}</span>
-            </button>             
-          </li>
+          </button>   
           
+          </li>
+           
 
         );
       

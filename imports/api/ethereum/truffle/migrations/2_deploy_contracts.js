@@ -1,5 +1,5 @@
-var Event = artifacts.require("./Event.sol");
+var userRegistry = artifacts.require("./userRegistry.sol");
 
 module.exports = function(deployer) {
-    deployer.deploy(Event);
+    deployer.deploy(userRegistry);
 };
