@@ -4,7 +4,6 @@ import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 // import '../../api/pudding/loader.js';
 
 import EthereumAccounts from '../EthereumAccounts.jsx';
-import  userRegistry  from '../userRegistry.jsx';
 
 
 
@@ -34,7 +33,10 @@ export default class AccountsSettings extends Component {
                   }
                  )}
              </ul> 
+<<<<<<< HEAD
              
+=======
+>>>>>>> e533caff6526fa8bff05dc1de7b70d1f0e8af4fd
          </ReactCSSTransitionGroup>
 
     );
