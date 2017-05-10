@@ -7,41 +7,47 @@ import "./userRegistry.sol";
 
 contract Event{ 
 
+    // contract's owner
     address public owner;
-
-	
-
-    // Unitary ticketPrice
-    uint public ticketPrice;
-    uint public ticketSold;
-    mapping (address => uint) balances;
+    // Event's name
+    bytes32 public name;
+    // Arrays of different kind of tickets
+    Tickets[] public allTickets;
+    // Block timestamp dependance is a security is{gas:586441}sue: miners set 
+    // the timestamp for the block. Normally, the timestamp is 
+    // set as the current time of the miner’s local system. 
+    // However he can vary this value by roughly 900 seconds,
+    // while still having other miners accept the block.
+    // Alternatively can be used block numbers.
+    uint public eventTime;
+    uint public MAX_TICKETS;
+    // Contract's balance 
+    uint public incomes;
     mapping (address => bool) rights;
-    mapping (address => Ticket) ticketOf;
-
-    uint public owner_percentage;
-
 
     //TODO: to include different kind of tickets insert
     //also struct TicketType;
+    struct Tickets{
+         bytes32 description;
+         uint ticketPrice;
+         uint numTickets;
+         uint ticketSold;
+         mapping (address => Ticket) ticketOf;
+
+    }
+    
     struct Ticket{
         uint num;
-        string description;
-        
-        // Block timestamp dependance is a security issue: miners set 
-        // the timestamp for the block. Normally, the timestamp is 
-        // set as the current time of the miner’s local system. 
-        // However he can vary this value by roughly 900 seconds,
-        // while still having other miners accept the block.
-        // Alternatively can be used block numbers.
-        uint timestamp;
-        // TODO: altre info
+        bool used;
     }
 
 
     // Use of an event to pass along return values from contracts, 
 	// to an app's frontend
 	event TicketPayed(address _from, uint _amount, uint _id, uint _timestamp);
+	event Checkin(address _to, uint _type, uint _timestamp);
 	event RevenueCollected(address _owner, uint _amount, uint _timestamp);
+	event TicketsAdded(bytes32 description, uint ticketPrice, uint numTickets);
     event UserRefunded(address _to, uint _amount);
 	
 	// This means that if the owner calls this function, the
@@ -74,20 +80,30 @@ contract Event{
 
     //This means that the function will be executed
     //only if incomes > 0
-    modifier onlyValue() { if(balances[msg.sender]  > 0 ) _; else throw; }
+    modifier onlyValue() { if(incomes  > 0 ) _; else throw; }
     
     //This means that only users with token auth right can call a function
-    modifier onlyRight() {if( rights[msg.sender] == true ) _; else throw; }
+    //modifier onlyRight() {if( rights[msg.sender] == true ) _; else throw; }
     
 	
 	/// This is the constructor whose code is
     /// run only when the contract is created.	
 	function Event
-    (uint _eventTime, uint _ticketPrice, address _sp, uint _op) {
+    (bytes32 _name, uint _eventTime, uint _MAXTICKETS) {
 		owner = msg.sender;	
- 		ticketPrice = _ticketPrice;
- 		ticketSold = 0;
+		name = _name;
+        eventTime = _eventTime;
+        MAX_TICKETS = _MAXTICKETS;
+		incomes = 0;
+
 	}
+	
+	function addTickets(bytes32 _description,
+	                    uint _ticketPrice,
+	                    uint _numTickets) onlyOwner public{
+	allTickets.push(Tickets({description: _description, ticketPrice: _ticketPrice, numTickets: _numTickets,ticketSold: 0}));                    
+    TicketsAdded(_description, _ticketPrice, _numTickets);
+    }
 	
     /// This is the constructor whose code is
     /// run only when the contract is created.	
@@ -99,66 +115,97 @@ contract Event{
     // May only be called by `owner`.
     // This means that owner can open the contract only to 
     // registered user to an internal db.
-    function giveRightToUse(address user) onlyOwner public {
-        rights[user] = true;
+    function giveRightToUse(address _user) onlyOwner public {
+        rights[_user] = true;
     }
 
     // Remove `user` the right to buy ticket on contracts.
     // May only be called by `owner`.
     // This means that owner can open the contract only to 
     // registered user to an internal db.
-    function removeRightToUse(address user) onlyOwner public {
-        rights[user] = false;
+    function removeRightToUse(address _user) onlyOwner public {
+        rights[_user] = false;
     }
 
+    function compute_price(uint _type, uint _num) public returns(uint){
+        uint _unitaryPrice = allTickets[_type].ticketPrice;
+        return _unitaryPrice*_num;
+    }
 
-	function buyTicket() costs(ticketPrice,msg.sender) 
-    onlyRight() public payable{
+	function buyTicket(uint _type,uint _num) 
+	costs(compute_price(_type,_num),msg.sender) public payable{
 	    
        // Sending back the money by simply using
        // organizer.send(tickePrice) is a security risk
        // because it can be prevented by the caller by e.g.
        // raising the call stack to 1023. It is always safer
        // to let the recipient withdraw their money themselves.	    
-       
-	   if(ticketOf[msg.sender].num != 0){
+      
+        Tickets t = allTickets[_type];
+	    if(t.ticketSold + _num > t.numTickets || _num > MAX_TICKETS){
 	       // throw ensures funds will be returned
 	       throw;
 	   }
-	
-	    ticketSold++;
-
-        //Add own_% to owner and 100-own_% to the service provider
-	    balances[owner] += ticketPrice*owner_percentage/100;
-
-        //TODO: change state of the ticket to assert that now belong to
-        // msg.sender address
-        //TODO: decide which information insert by contract computing 
-        //or by external data source, using oracles eventually.
-	    TicketPayed(msg.sender, msg.value,ticketOf[msg.sender].num,now);
+	    
+	    t.ticketSold += _num;
+	    incomes += compute_price(_type,_num);
+	    t.ticketOf[msg.sender] = Ticket({num: _num, used:false});
+	    TicketPayed(msg.sender, msg.value,t.ticketOf[msg.sender].num,now);
 	    	
 	}
+	
+	function useTicket(uint _type) public returns (bool){
+	    Tickets t = allTickets[_type];
+	    if(t.ticketOf[msg.sender].num == 0 || t.ticketOf[msg.sender].used == true)
+	        return false;
+	    else{
+	        t.ticketOf[msg.sender].used = true;
+	        Checkin(msg.sender,_type,now);
+	        return true;
+	    }
+	    
+	}
+
+    /// Function to retrieve all the Tickets in the contract
+    function getTickets() public returns(bytes32[],uint[],uint[]){
+        uint length = allTickets.length;
+        bytes32[] memory descriptions = new bytes32[](length);
+        uint[] memory ticketPrices = new uint[](length);
+        uint[] memory ticketsLeft = new uint[](length);
+
+        for(uint i = 0; i < length; i++){
+            descriptions[i] = allTickets[i].description;
+            ticketPrices[i] = allTickets[i].ticketPrice;
+            ticketsLeft[i] = allTickets[i].numTickets - allTickets[i].ticketSold;
+        }
+
+        return (descriptions,ticketPrices,ticketsLeft);
+
+    }
 
 
     /// Function to get user ticket id eventually returns 0 if 
     /// user has not bought any tickets.
-    function getTicket(address user) public returns(uint){
-        return (ticketOf[user].num);
+    function getTicket(address _user, uint _type) public returns(uint ,bool){
+        Tickets t = allTickets[_type];
+        return (t.ticketOf[_user].num, t.ticketOf[_user].used);
     }
+
+    
 	
 	
     /// Withdraw pattern fot the organizer
-	function withdraw() onlyValue public returns(bool){
+	function withdraw() onlyValue onlyOwner public returns(bool){
 	    
-        uint amount = balances[msg.sender];
+        uint amount = incomes;
         // Remember to zero the pending refund before
         // sending to prevent re-entrancy attacks
-        balances[msg.sender] = 0;
+        incomes = 0;
         if (msg.sender.send(amount)) {
             RevenueCollected(msg.sender, amount,now);
             return true;
         } else {
-            balances[msg.sender] = amount;
+            incomes = amount;
             return false;
          }
     }

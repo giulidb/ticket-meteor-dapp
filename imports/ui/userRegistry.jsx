@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 // Ethereum libraries and contracts
 import Web3 from '../api/ethereum/web3.js';
 import { default as contract } from 'truffle-contract'
-import userRegistry_artifacts from '../api/ethereum/truffle/build/contracts/userRegistry.json'
+//import userRegistry_artifacts from '../api/ethereum/truffle/build/contracts/userRegistry.json'
 
 export default class userRegistry extends Component {
 
