@@ -58,9 +58,9 @@ export default class EventDetailed extends TrackerReact(Component){
     render(){
 
         let event = this.contract();
-        if(!event)
+        if(!event){
           return(<div>Loading...</div>)
-        
+        }
 
         return(
                 <ReactCSSTransitionGroup
