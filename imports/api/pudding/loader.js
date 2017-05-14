@@ -46,8 +46,6 @@ userRegistry.deployed().then(function(instance){
       user.getRight.call(account, {from: fromAddr,gasPrice: gasPrice, gas: gas}).then(function(value){
                    console.log("right of" + account +": "+value);
                   });
-
-
       }).catch(function(e){
         console.log(e);
       })
@@ -57,10 +55,20 @@ userRegistry.deployed().then(function(instance){
     });
 
 var event;
+var ticketPrice1 = web3.toWei(0.5,'ether');
+var ticketPrice2 = web3.toWei(1,'ether');
+var ticketPrice3 = web3.toWei(1.5,'ether');
+
+
 Event.deployed().then(function(instance){
   event = instance;
-  return event.addTickets("Posto Unico in Piedi",5,100,{from: fromAddr,gasPrice: gasPrice, gas: gas}).then(function(){
-      console.log("Tickets added");
+  event.addTickets("Posto Unico in Piedi",ticketPrice1,200,{from: fromAddr,gasPrice: gasPrice, gas: gas}).then(function(res){
+      event.addTickets("Tribuna Primo Settore",ticketPrice2,100,{from: fromAddr,gasPrice: gasPrice, gas: gas}).then(function(value){
+              event.addTickets("Tribuna Secondo Settore",ticketPrice3,150,{from: fromAddr,gasPrice: gasPrice, gas: gas}).then(function(value){
+                  console.log("Tickets added");
+              });
+
+      });
   }).catch(function(e){
     console.log(e);
   })

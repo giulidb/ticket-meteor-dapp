@@ -14,8 +14,8 @@ export default class About extends Component{
                   transitionLeaveTimeout={300}
                   transitionAppear={true}
                   transitionAppearTimeout={500}>
-                    <h1>My tickets </h1>
-                    <p>You didn't buy any tickets yet.</p>
+                    <h1>About</h1>
+                    <p>This is ...</p>
                     
                 </ReactCSSTransitionGroup>
                 

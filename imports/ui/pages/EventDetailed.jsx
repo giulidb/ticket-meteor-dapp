@@ -10,10 +10,10 @@ import Ticket from '../Ticket.jsx';
 
 import {Meteor} from 'meteor/meteor';
 
-// Ethereum libraries and contracts
+import '../../api/pudding/loader.js';
 
+// Ethereum libraries and contracts
 import web3, { selectContractInstance, mapReponseToJSON } from '../../api/ethereum/web3.js';
-import { default as contract } from 'truffle-contract'
 import event_artifacts from '../../api/ethereum/truffle/build/contracts/Event.json'
 
 export default class EventDetailed extends TrackerReact(Component){
@@ -29,7 +29,7 @@ export default class EventDetailed extends TrackerReact(Component){
     }
   }
 
-    async componentWillMount() {
+  async componentWillMount() {
     this.TicketsList = await selectContractInstance(event_artifacts);
 
     const TicketItems = await this.getTickets();
@@ -49,9 +49,9 @@ export default class EventDetailed extends TrackerReact(Component){
   }
 
     async getTickets(){
-    const TicketItemsResp = await this.TicketsList.getTickets.call();
-    const TicketItems = mapReponseToJSON(TicketItemsResp,['description','TicketPrices','ticketsLeft'],"arrayOfObject");
-    return TicketItems;
+      const TicketItemsResp = await this.TicketsList.getTickets.call();
+      const TicketItems = mapReponseToJSON(TicketItemsResp,['description','TicketPrices','ticketsLeft'],"arrayOfObject");
+      return TicketItems;
   }
 
 
@@ -77,13 +77,15 @@ export default class EventDetailed extends TrackerReact(Component){
                   <h3>Tickets</h3>
                   <ul className="dapp-account-list">
                    {this.state.Tickets.map((item,itemIndex) => {
-                       return <Ticket key={itemIndex} item = {item}/>
+                       return <Ticket key={itemIndex} item = {item} index = {itemIndex}/>
                       })
                     }
+                   <hr/> 
+                   </ul> 
+                
                    
-                  </ul> 
-                  
-                </ReactCSSTransitionGroup>
+                
+               </ReactCSSTransitionGroup>
                 
         )
     }

@@ -8,6 +8,7 @@ export default class Event extends Component {
 
   render() {
   
+    console.log('/events/'+ this.props.event._id);
     return (
       <li>
       <button>

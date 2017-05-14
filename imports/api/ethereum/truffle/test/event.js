@@ -6,7 +6,7 @@ contract('Event', function(accounts) {
   var user_account = accounts[1];
 
 
-  it("Initial conference settings should match", function(done) {
+  it("Constructor Test", function(done) {
   	
   	Event.deployed().then(
   		function(event) {
@@ -26,14 +26,27 @@ contract('Event', function(accounts) {
   	}).catch(done);
   });
 
-  it("Initial conference settings should match", function(done) {
+	var price;
+	  it("Buy Ticket Test", function(done) {
 		
 		Event.deployed().then(function(instance){
 		event = instance;
 		return event.addTickets("Posto Unico in Piedi",5,100,{from: owner_account}).then(function(){
 			console.log("Tickets added");
-			assert.equal("ciao", "ciao", "Time doesn't match!");
-			done();
+			event.compute_price(0,1,{from: user_account}).then(function(value){
+				price = value;
+				console.log("Ticket Price: "+ price.valueOf());
+			}).then(function(){
+				event.buyTicket(0,1,{from: user_account,value: 5}).then(
+					function(res){
+						console.log(res);
+						done();
+					}
+				);
+			}
+
+			);
+			
 		}).catch(function(e){
 			console.log(e);
 		})
@@ -43,6 +56,39 @@ contract('Event', function(accounts) {
 
 	});
 
+	  it("Try to use Ticket Test", function(done) {
+		
+		Event.deployed().then(function(instance){
+		event = instance;
+		return event.addTickets("Posto Unico in Piedi",5,100,{from: owner_account}).then(function(){
+			console.log("Tickets added");
+			event.compute_price(0,1,{from: user_account}).then(function(value){
+				price = value;
+				console.log("Ticket Price: "+ price.valueOf());
+			}).then(function(){
+				event.buyTicket(0,1,{from: user_account,value: 5}).then(
+					function(res){
+						console.log(res);
+						event.getTicket.call(user_account,0).then(function(value){
+							console.log(value.valueOf());
+						event.useTicket.call(0, {from: user_account}).then(function(value){
+							console.log(value);
+							assert.equal(value, true, "use goes wrong");
+							event.useTicket.call(0, {from: user_account}).then(function(value){
+								console.log(value);
+								assert.equal(value, false, "use goes wrong");
+								done();});
+							});
+
+						});
+					});
+			});
+		}).catch(function(e){
+				console.log(e);
+			});
+	}).catch(function(e){
+				console.log(e);
+			});
+	  });
+
 });
-
-

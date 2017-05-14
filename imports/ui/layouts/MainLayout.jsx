@@ -10,8 +10,8 @@ export const MainLayout = ({content}) => (
             <nav>
                     <ul>
                         <li><a href="/"><span>Events</span></a></li>
-                        <li><a href="/about"><span>My Tickets</span></a></li>
                         <li><a href="/myAccounts"><span>My Accounts</span></a></li>
+                        <li><a href="/about"><span>About</span></a></li>
                         <li><a><AccountsUI/></a></li>
                     </ul>
                 </nav>
@@ -27,7 +27,7 @@ export const MainLayout = ({content}) => (
         </div>
    
         <footer className="dapp-footer">
-            <h4>Copyrigth &copy; by Giulia Di Bella - 2017</h4>
+            <h4>&copy; by Giulia Di Bella - 2017</h4>
         </footer>    
 </div>
 

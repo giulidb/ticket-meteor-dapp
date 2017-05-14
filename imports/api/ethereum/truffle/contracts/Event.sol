@@ -101,8 +101,8 @@ contract Event{
 	function addTickets(bytes32 _description,
 	                    uint _ticketPrice,
 	                    uint _numTickets) onlyOwner public{
-	allTickets.push(Tickets({description: _description, ticketPrice: _ticketPrice, numTickets: _numTickets,ticketSold: 0}));                    
-    TicketsAdded(_description, _ticketPrice, _numTickets);
+            allTickets.push(Tickets({description: _description, ticketPrice: _ticketPrice, numTickets: _numTickets,ticketSold: 0}));                    
+            TicketsAdded(_description, _ticketPrice, _numTickets);
     }
 	
     /// This is the constructor whose code is
@@ -132,8 +132,8 @@ contract Event{
         return _unitaryPrice*_num;
     }
 
-	function buyTicket(uint _type,uint _num) 
-	costs(compute_price(_type,_num),msg.sender) public payable{
+	function buyTicket(uint _type,uint _num)
+       costs(compute_price(_type,_num),msg.sender) public payable{
 	    
        // Sending back the money by simply using
        // organizer.send(tickePrice) is a security risk
@@ -156,14 +156,14 @@ contract Event{
 	
 	function useTicket(uint _type) public returns (bool){
 	    Tickets t = allTickets[_type];
-	    if(t.ticketOf[msg.sender].num == 0 || t.ticketOf[msg.sender].used == true)
+	    if(t.ticketOf[msg.sender].num == 0 || t.ticketOf[msg.sender].used == true){
 	        return false;
-	    else{
+        }else{
+           
 	        t.ticketOf[msg.sender].used = true;
 	        Checkin(msg.sender,_type,now);
 	        return true;
 	    }
-	    
 	}
 
     /// Function to retrieve all the Tickets in the contract
@@ -191,9 +191,15 @@ contract Event{
         return (t.ticketOf[_user].num, t.ticketOf[_user].used);
     }
 
-    
-	
-	
+
+     /// Function to retrieve all the Tickets in the contract
+    function getLeftTickets(uint _type) public returns(uint){
+        Tickets t = allTickets[_type];
+        return t.numTickets - t.ticketSold;
+
+    }
+
+  	
     /// Withdraw pattern fot the organizer
 	function withdraw() onlyValue onlyOwner public returns(bool){
 	    
