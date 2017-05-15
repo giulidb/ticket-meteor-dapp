@@ -10,8 +10,6 @@ import Ticket from '../Ticket.jsx';
 
 import {Meteor} from 'meteor/meteor';
 
-import '../../api/pudding/loader.js';
-
 // Ethereum libraries and contracts
 import web3, { selectContractInstance, mapReponseToJSON } from '../../api/ethereum/web3.js';
 import event_artifacts from '../../api/ethereum/truffle/build/contracts/Event.json'

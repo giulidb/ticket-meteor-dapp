@@ -67,7 +67,7 @@ export default class Ticket extends Component {
                                                     {from: this.state.account, gasPrice: this.state.gasPrice,
                                                      gas: this.state.gas, value: web3.toWei(this.state.total_price,'ether')});
             console.log(res);
-            Bert.alert('Congratulations! Your transaction has been succesful!','success','fixed-top','fa-smile-o');
+            Bert.alert('Congratulations! Your transaction has been successful!','success','fixed-top','fa-smile-o');
             this.getMyTickets();
             this.refreshValue();
             ;
@@ -78,7 +78,7 @@ export default class Ticket extends Component {
             const TicketsList = await selectContractInstance(event_artifacts);
             await TicketsList.useTicket(this.props.index,{from: this.state.account, gasPrice: this.state.gasPrice,
                                                      gas: this.state.gas});
-            Bert.alert('Congratulations! Your transaction has been succesful!','success','fixed-top','fa-smile-o');
+            Bert.alert('Congratulations! Your transaction has been successful!','success','fixed-top','fa-smile-o');
             this.getMyTickets();
            
 

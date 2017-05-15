@@ -17,6 +17,7 @@ export default class Event extends Component {
              <span>{this.props.event.description}</span>
                 <span>{this.props.event.location} - {this.props.event.date}</span>
        </button> 
+      <a href={'/events/'+ this.props.event._id}> See Tickets for this event </a>
       </li>
 
     );

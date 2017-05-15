@@ -47,7 +47,8 @@ export default class EthereumAccounts extends TrackerReact(Component) {
   } 
 
    accounts(){
-    return Ethereum_Accounts.findOne({address: this.props.account.address});
+    console.log("accounts query: " + Ethereum_Accounts.findOne({owner: Meteor.userId()}));
+    return Ethereum_Accounts.findOne({owner: Meteor.userId()});
   }
 
   async getRight(){
@@ -57,6 +58,22 @@ export default class EthereumAccounts extends TrackerReact(Component) {
     return Right;
   }
 
+  activate(){
+    console.log("Activate function: " + this.props.account.address );
+    
+    // check if user with Meteor.userId is already in the db
+    // if not insert it and add the correspondent address else
+    // only update with the new address.
+    if(!this.accounts()){
+              console.log("Insert new account");
+              Meteor.call('account.insert');}
+    console.log("Update new account");          
+    Meteor.call('account.addAddress',this.props.account.address);
+    Bert.alert('Congratulations! Your request has been successful!','success','growl-top-right','fa-smile-o');
+
+    
+  }
+
 
 
   render() {
@@ -64,18 +81,35 @@ export default class EthereumAccounts extends TrackerReact(Component) {
       var active;
       if(this.state.rightVal != null)
          active = this.state.rightVal ? "Activated" : "Inactive";
+      var buttonClass = this.state.rightVal ? "selected": ""; 
+
       return (
 
           <li>
-          <button>
-                <a className="dapp-identicon dapp-small"></a>
-                <h3>{this.props.account.name}</h3>
-                <span>{this.props.account.address}</span>
-                <span>{EthTools.formatBalance(this.props.account.balance, '0.0,[0] unit', 'ether')}
-                      /{EthTools.formatBalance(this.props.account.balance, '0.0,[0]', 'eur')}€
-                </span> 
-                Account Status: {active}
-            </button>             
+            <div className="row clear">
+               <div className="col col-5 tablet-col-11 mobile-col-1-2">
+                    <span className="no-tablet no-mobile">
+                        <button className = {buttonClass}>
+                          <a className="dapp-identicon dapp-small"></a>
+                          <h3>{this.props.account.name}</h3>
+                          <span>{this.props.account.address}</span>
+                          <span>{EthTools.formatBalance(this.props.account.balance, '0.0,[0] unit', 'ether')}
+                                /{EthTools.formatBalance(this.props.account.balance, '0.0,[0]', 'eur')}€
+                          </span> 
+                        </button>       
+                    </span>
+              </div>
+            
+
+             <div className="col col-3 tablet-col-1 mobile-full">
+                    <span className="no-tablet no-mobile">
+                            <button disabled = {this.state.rightVal} onClick={this.activate.bind(this)} >
+                                <h3>Activate This Account</h3>
+                                 Account Status: {active}
+                            </button>
+                    </span>
+                </div>  
+            </div>                    
           </li>
           
 
