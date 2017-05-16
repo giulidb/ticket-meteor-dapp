@@ -3,6 +3,7 @@ import { Events } from '../imports/api/events.js';
 import '../imports/api/ethereum_accounts';
 //import '../imports/api/pudding/loader.js';
 
+
 Meteor.startup(() => {
     //code to run on server at startup
     /* console.log("Starting up server-side");

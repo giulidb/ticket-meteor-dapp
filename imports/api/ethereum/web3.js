@@ -16,12 +16,12 @@ if (typeof web3 !== 'undefined') {
 
 export default web3;
 
-export const selectContractInstance = (contractBuild) => {
+export const selectContractInstance = (contractBuild, address) => {
   return new Promise(res => {
     const myContract = contract(contractBuild);
     myContract.setProvider(provider);
     myContract
-      .deployed()
+      .at(address)
       .then(instance => res(instance));
   })
 }

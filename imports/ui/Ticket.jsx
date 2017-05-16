@@ -33,16 +33,15 @@ export default class Ticket extends Component {
         
 
     async getMyTickets(){
-            this.TicketsList = await selectContractInstance(event_artifacts);
+            this.TicketsList = await selectContractInstance(event_artifacts,this.props.contract_address);
             const MyTicketItems = await this.TicketsList.getTicket.call(this.state.account,this.props.index);
-            console.log(MyTicketItems);
             this.setState( {MyTickets: MyTicketItems[0].valueOf()} );
             this.setState( {used: MyTicketItems[1]});
     }  
 
     async compute_price(){
             this.setState({value: this.refs.numInput.state.value});
-            this.TicketsList = await selectContractInstance(event_artifacts);
+            this.TicketsList = await selectContractInstance(event_artifacts,this.props.contract_address);
             const price = await this.getPrice();
             this.setState( {total_price: web3.fromWei(price.valueOf(),'ether')} );
     }  
@@ -54,15 +53,13 @@ export default class Ticket extends Component {
     }
 
     async refreshValue(){
-           const TicketsList = await selectContractInstance(event_artifacts);
+           const TicketsList = await selectContractInstance(event_artifacts,this.props.contract_address);
            const TicketLeft = await TicketsList.getLeftTickets.call(this.props.index);
-           console.log("ticketleft:");
-           console.log(TicketLeft);
            this.setState({ticket_left: TicketLeft.valueOf()});  
     }
 
     async buy(){
-            const TicketsList = await selectContractInstance(event_artifacts);
+            const TicketsList = await selectContractInstance(event_artifacts,this.props.contract_address);
             const res = await TicketsList.buyTicket(this.props.index,this.state.value,
                                                     {from: this.state.account, gasPrice: this.state.gasPrice,
                                                      gas: this.state.gas, value: web3.toWei(this.state.total_price,'ether')});
@@ -75,7 +72,7 @@ export default class Ticket extends Component {
 
     async use(){
 
-            const TicketsList = await selectContractInstance(event_artifacts);
+            const TicketsList = await selectContractInstance(event_artifacts,this.props.contract_address);
             await TicketsList.useTicket(this.props.index,{from: this.state.account, gasPrice: this.state.gasPrice,
                                                      gas: this.state.gas});
             Bert.alert('Congratulations! Your transaction has been successful!','success','fixed-top','fa-smile-o');
@@ -108,20 +105,21 @@ export default class Ticket extends Component {
         var price = web3.fromWei(this.props.item.TicketPrices.valueOf(),'ether');
 
         return (
+            
     
             <li><hr/><div className="row clear">
                 <div className="col col-4 tablet-col-11 mobile-col-1-2">
                     <span className="no-tablet no-mobile">
                                     <h3>Description: {this.props.item.description}</h3>
                                     <span>Availability: {this.state.ticket_left} Remaining</span><br/>
-                                    <span>Price: {price} ETH / {EthTools.formatBalance(price, '0.0,[0]', 'eur')}€ </span>
+                                    <span>Price: {price} ETH / {EthTools.formatBalance(this.props.item.TicketPrices.valueOf(), '0.0,[0]', 'eur')}€ </span>
                     </span>
                 </div>
                 <div className="col col-3 tablet-col-1 mobile-full">
                     <span className="no-tablet no-mobile">
                             <button onClick={this.buy.bind(this)} disabled = {this.state.MyTickets != 0}>
                                 <h3>Buy</h3>
-                                Total: {this.state.total_price} ETH
+                                Total: {this.state.total_price} ETH / {EthTools.formatBalance(web3.toWei(this.state.total_price,'ether'), '0.0,[0]', 'eur')}€
                             </button>
                     </span>
                 </div>

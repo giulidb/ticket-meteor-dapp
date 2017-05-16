@@ -23,18 +23,15 @@ export default class EventDetailed extends TrackerReact(Component){
       subscription: {
         events: Meteor.subscribe('allEvents')
       },
-       Tickets: []
+       Tickets: [],
+       address: ""
     }
   }
 
-  async componentWillMount() {
-    this.TicketsList = await selectContractInstance(event_artifacts);
-
+  async loadContract(addr) {
+    this.TicketsList = await selectContractInstance(event_artifacts,addr);
     const TicketItems = await this.getTickets();
-    console.log(TicketItems);
     this.setState( {Tickets: TicketItems} );
-    console.log(this.state.Tickets);
-
 }
 
   componentWillUnmount(){
@@ -60,6 +57,8 @@ export default class EventDetailed extends TrackerReact(Component){
           return(<div>Loading...</div>)
         }
 
+        this.loadContract(event.address);
+
         return(
                 <ReactCSSTransitionGroup
                   component="div"
@@ -75,7 +74,7 @@ export default class EventDetailed extends TrackerReact(Component){
                   <h3>Tickets</h3>
                   <ul className="dapp-account-list">
                    {this.state.Tickets.map((item,itemIndex) => {
-                       return <Ticket key={itemIndex} item = {item} index = {itemIndex}/>
+                       return <Ticket key={itemIndex} item = {item} index = {itemIndex} contract_address = {event.address}/>
                       })
                     }
                    <hr/> 

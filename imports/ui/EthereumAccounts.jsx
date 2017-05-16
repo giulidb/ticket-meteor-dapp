@@ -7,6 +7,7 @@ import TrackerReact from 'meteor/ultimatejs:tracker-react';
 import { Ethereum_Accounts } from '../api/ethereum_accounts.js';
 import  userRegistry  from './userRegistry.jsx';
 
+import { Meteor } from 'meteor/meteor';
 
 
 // Ethereum libraries and contracts

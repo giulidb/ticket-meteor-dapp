@@ -13,16 +13,13 @@ if (Meteor.isServer) {
 //methods
 Meteor.methods({
 
-    'account.insert' () {
+    'account.insert'() {
         // Make sure the user is logged in before inserting a task
         if (!Meteor.userId()) {
             throw new Meteor.Error('not-authorized');
         }
 
-        Ethereum_Accounts.insert({
-            Ethereum_Accounts,
-            owner: Meteor.userId(),
-        });
+        Ethereum_Accounts.insert({owner: Meteor.userId()});
     },
 
     'account.addAddress' (address) {
