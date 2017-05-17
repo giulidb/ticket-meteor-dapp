@@ -10,6 +10,7 @@ import Ticket from '../Ticket.jsx';
 
 import {Meteor} from 'meteor/meteor';
 
+
 // Ethereum libraries and contracts
 import web3, { selectContractInstance, mapReponseToJSON } from '../../api/ethereum/web3.js';
 import event_artifacts from '../../api/ethereum/truffle/build/contracts/Event.json'
@@ -54,7 +55,9 @@ export default class EventDetailed extends TrackerReact(Component){
 
         let event = this.contract();
         if(!event){
-          return(<div>Loading...</div>)
+          return(
+            <div className="loader">Loading...</div>
+          )
         }
 
         this.loadContract(event.address);

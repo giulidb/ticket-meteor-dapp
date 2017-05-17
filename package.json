@@ -1,21 +1,21 @@
 {
-  "name": "ticket-meteor-dapp",
-  "private": true,
-  "scripts": {
-    "start": "meteor run"
-  },
-  "dependencies": {
-    "babel-runtime": "^6.23.0",
-    "bcrypt": "^1.0.2",
-    "meteor-node-stubs": "^0.2.6",
-    "react": "^15.5.4",
-    "react-addons-css-transition-group": "^15.5.2",
-    "react-addons-pure-render-mixin": "^15.5.2",
-    "react-addons-transition-group": "^15.5.2",
-    "react-dom": "^15.5.4",
-    "react-mounter": "^1.2.0",
-    "react-numeric-input": "^2.0.7",
-    "truffle-contract": "^2.0.0",
-    "truffle-default-builder": "^2.0.0"
-  }
+    "name": "ticket-meteor-dapp",
+    "private": true,
+    "scripts": {
+        "start": "meteor run"
+    },
+    "dependencies": {
+        "babel-runtime": "^6.23.0",
+        "bcrypt": "^1.0.2",
+        "meteor-node-stubs": "^0.2.6",
+        "react": "^15.5.4",
+        "react-addons-css-transition-group": "^15.5.2",
+        "react-addons-pure-render-mixin": "^15.5.2",
+        "react-addons-transition-group": "^15.5.2",
+        "react-dom": "^15.5.4",
+        "react-mounter": "^1.2.0",
+        "react-numeric-input": "^2.0.7",
+        "truffle-contract": "^2.0.0",
+        "truffle-default-builder": "^2.0.0"
+    }
 }

@@ -15,7 +15,7 @@ export default class Ticket extends Component {
         this.state = {
             total_price: "",
             value : "1",
-            account: web3.eth.accounts[1],
+            account: Session.get('account'),
             gasPrice: 100000000000,
             gas: 2500000,
             ticket_left: "",
