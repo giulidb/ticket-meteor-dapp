@@ -2,7 +2,7 @@ pragma solidity ^0.4.0;
 import "./userRegistry.sol";
 
 
-/** @title Contract for tickets sells  .*/
+/** @title Contract for tickets sells concerning Events  .*/
 /** @author Giulia Di Bella .*/
 
 contract Event{ 
@@ -13,7 +13,7 @@ contract Event{
     bytes32 public name;
     // Arrays of different kind of tickets
     Tickets[] public allTickets;
-    // Block timestamp dependance is a security is{gas:586441}sue: miners set 
+    // Block timestamp dependance is a security issue: miners set 
     // the timestamp for the block. Normally, the timestamp is 
     // set as the current time of the miner’s local system. 
     // However he can vary this value by roughly 900 seconds,
@@ -25,8 +25,7 @@ contract Event{
     uint public incomes;
     mapping (address => bool) rights;
 
-    //TODO: to include different kind of tickets insert
-    //also struct TicketType;
+    // Struct of diffent kind of Tickets
     struct Tickets{
          bytes32 description;
          uint ticketPrice;
@@ -36,6 +35,7 @@ contract Event{
 
     }
     
+    // Struct of a bulk of one or more tickets owned by some user
     struct Ticket{
         uint num;
         bool used;
@@ -97,20 +97,8 @@ contract Event{
 		incomes = 0;
 
 	}
-	
-	function addTickets(bytes32 _description,
-	                    uint _ticketPrice,
-	                    uint _numTickets) onlyOwner public{
-            allTickets.push(Tickets({description: _description, ticketPrice: _ticketPrice, numTickets: _numTickets,ticketSold: 0}));                    
-            TicketsAdded(_description, _ticketPrice, _numTickets);
-    }
-	
-    /// This is the constructor whose code is
-    /// run only when the contract is created.	
-	function userRegistry() {
-		owner = msg.sender;        
-	}
 
+    
     // Give `user` the right to buy ticket on contracts.
     // May only be called by `owner`.
     // This means that owner can open the contract only to 
@@ -126,11 +114,20 @@ contract Event{
     function removeRightToUse(address _user) onlyOwner public {
         rights[_user] = false;
     }
+	
+	function addTickets(bytes32 _description,
+	                    uint _ticketPrice,
+	                    uint _numTickets) onlyOwner public{
+            allTickets.push(Tickets({description: _description, ticketPrice: _ticketPrice, numTickets: _numTickets,ticketSold: 0}));                    
+            TicketsAdded(_description, _ticketPrice, _numTickets);
+    }
+
 
     function compute_price(uint _type, uint _num) public returns(uint){
         uint _unitaryPrice = allTickets[_type].ticketPrice;
         return _unitaryPrice*_num;
     }
+    
 
 	function buyTicket(uint _type,uint _num)
        costs(compute_price(_type,_num),msg.sender) public payable{
