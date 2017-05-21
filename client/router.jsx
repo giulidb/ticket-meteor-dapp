@@ -17,6 +17,14 @@ FlowRouter.route('/', {
     }
 });
 
+FlowRouter.route('/transportServices', {
+    action(){
+        mount(MainLayout,{
+            content: (<TransportWrapper/>)
+        })
+    }
+});
+
 
 FlowRouter.route('/about', {
     action(){
@@ -45,6 +53,14 @@ FlowRouter.route('/events/:id', {
     action(params){
         mount(MainLayout,{
             content: (<EventDetailed id={params.id}/>)
+        })
+    }
+});
+
+FlowRouter.route('/transportServices/:id', {
+    action(params){
+        mount(MainLayout,{
+            content: (<transportDetailed id={params.id}/>)
         })
     }
 });

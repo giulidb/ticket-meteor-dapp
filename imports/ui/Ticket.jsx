@@ -22,14 +22,29 @@ export default class Ticket extends Component {
             MyTickets: "",
             used: ""
         }
+        
   }
 
 
     async componentWillMount() {
             this.getMyTickets();
-            this.setState({total_price: web3.fromWei(this.props.item.TicketPrices.valueOf(),'ether')});
+            this.setState({total_price: EthTools.formatBalance(this.props.item.TicketPrices.valueOf(),'0.00','ether')} );
             this.setState({ticket_left: this.props.item.ticketsLeft.valueOf()});
-    }
+
+            //Set Event Listener
+            await this.ResultEvent();
+
+        }
+        
+    async ResultEvent(){
+            this.TicketsList = await selectContractInstance(event_artifacts,this.props.contract_address);
+            this.TicketsList.TicketPayed(function(error,log){
+                if(!error){
+                    this.refreshValue();
+                }
+            });
+
+    }    
         
 
     async getMyTickets(){
@@ -43,7 +58,7 @@ export default class Ticket extends Component {
             this.setState({value: this.refs.numInput.state.value});
             this.TicketsList = await selectContractInstance(event_artifacts,this.props.contract_address);
             const price = await this.getPrice();
-            this.setState( {total_price: web3.fromWei(price.valueOf(),'ether')} );
+            this.setState( {total_price: EthTools.formatBalance(price.valueOf(),'0.00','ether')} );
     }  
 
     async getPrice(){
@@ -102,24 +117,23 @@ export default class Ticket extends Component {
 
     render() {
 
-        var price = web3.fromWei(this.props.item.TicketPrices.valueOf(),'ether');
+        var price = EthTools.formatBalance(this.props.item.TicketPrices.valueOf(),'0.00','ether');
 
         return (
-            
-    
+                
             <li><hr/><div className="row clear">
                 <div className="col col-4 tablet-col-11 mobile-col-1-2">
                     <span className="no-tablet no-mobile">
                                     <h3>Description: {this.props.item.description}</h3>
-                                    <span>Availability: {this.state.ticket_left} Remaining</span><br/>
-                                    <span>Price: {price} ETH / {EthTools.formatBalance(this.props.item.TicketPrices.valueOf(), '0.0,[0]', 'eur')}€ </span>
+                                    <span>Availability: {this.state.ticket_left} / {this.props.item.TicketsNum.valueOf()} Remaining</span><br/>
+                                    <span>Price: {price} ETH / {EthTools.formatBalance(this.props.item.TicketPrices.valueOf(), '0.00', 'eur')}€ </span>
                     </span>
                 </div>
                 <div className="col col-3 tablet-col-1 mobile-full">
                     <span className="no-tablet no-mobile">
                             <button onClick={this.buy.bind(this)} disabled = {this.state.MyTickets != 0}>
                                 <h3>Buy</h3>
-                                Total: {this.state.total_price} ETH / {EthTools.formatBalance(web3.toWei(this.state.total_price,'ether'), '0.0,[0]', 'eur')}€
+                                Total: {this.state.total_price} ETH / {EthTools.formatBalance(web3.toWei(this.state.total_price,'ether'), '0.00', 'eur')}€
                             </button>
                     </span>
                 </div>

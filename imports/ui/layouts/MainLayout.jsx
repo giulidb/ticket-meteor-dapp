@@ -4,15 +4,16 @@ import AccountsUI from '../AccountsUI.jsx';
 export const MainLayout = ({content}) => (
 
 <div className ="MainLayout">
-
         <header className="dapp-header">
-            <h3>Tickets Ethereum App</h3>
-            <nav>
+            <nav className="dapp_nav">
                     <ul>
-                        <li><a href="/"><span>Events</span></a></li>
-                        <li><a href="/myAccounts"><span>My Accounts</span></a></li>
-                        <li><a href="/about"><span>About</span></a></li>
-                        <li><a><AccountsUI/></a></li>
+                        <li><a><h3  className="title" >Ethereum Tickets Dapp</h3></a></li>
+                        <li><a href=""></a></li>
+                        <li><a href="/"><span><h3>Events</h3></span></a></li>
+                        <li><a href="/transportServices"><span><h3>Transport Services</h3></span></a></li>
+                        <li><a href="/myAccounts"><span><h3>My Accounts</h3></span></a></li>
+                        <li><a href="/about"><span><h3>About</h3></span></a></li>
+                        <li><a><h3><AccountsUI/></h3></a></li>
                     </ul>
                 </nav>
         </header>

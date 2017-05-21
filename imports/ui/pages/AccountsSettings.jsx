@@ -5,6 +5,8 @@ import EthereumAccounts from '../EthereumAccounts.jsx';
 
 import TrackerReact from 'meteor/ultimatejs:tracker-react';
 import { Meteor } from 'meteor/meteor';
+import {UserRegister} from '../../api/userRegister.js';
+
 import web3, { selectContractInstance, mapReponseToJSON } from '../../api/ethereum/web3.js';
 import userRegistry_artifacts from '../../api/ethereum/truffle/build/contracts/userRegistry.json'
  
@@ -16,15 +18,16 @@ export default class AccountsSettings extends TrackerReact(Component) {
       this.state = {
 
         subscription: {
-            accounts: Meteor.subscribe('allAccounts')
+            accounts: Meteor.subscribe('allAccounts'),
+            register: Meteor.subscribe('registerAddress'),
                       },
         rightVal: "",
      }
   }
 
     async componentWillMount() {
-        //this.userRegistry = await selectContractInstance(userRegistry_artifacts);
-
+        var reg = this.getAddressRegister();
+        this.userRegistry = await selectContractInstance(userRegistry_artifacts,reg.address);
         const right = await this.getRight();
         this.setState( {rightVal: right} );
         console.log(this.state.rightVal);
@@ -34,23 +37,26 @@ export default class AccountsSettings extends TrackerReact(Component) {
 
   componentWillUnmount(){
         this.state.subscription.accounts.stop();
-
+        this.state.subscription.register.stop();
+reg
   } 
 
 
-   accounts(){
+   account(){
         console.log("accounts query: " + Ethereum_Accounts.findOne({owner: Meteor.userId()}));
         return Ethereum_Accounts.findOne({owner: Meteor.userId()});
   }
 
-
   async getRight(){
-        //let self = this;
-        //const RightResp = await this.userRegistry.getRight.call(self.props.account.address);
-        //const Right = mapReponseToJSON(RightResp,"","");
-        //return Right;
+        let self = this;
+        const RightResp = await this.userRegistry.getRight.call(self.props.account.address);
+        const Right = mapReponseToJSON(RightResp,"","");
+        return Right;
   }
 
+   getAddressRegister(){
+        return UserRegister.findOne({name: "UserRegister"});
+   }
 
 
 
@@ -70,10 +76,8 @@ export default class AccountsSettings extends TrackerReact(Component) {
             // check if user with Meteor.userId is already in the db
             // if not insert it and add the correspondent address else
             // only update with the new address.
-            if(!this.accounts()){
-                      console.log("Insert new account");
-                      Meteor.call('account.insert');}
-            console.log("Update new account");          
+            if(!this.account()){
+                      Meteor.call('account.insert');}        
             Meteor.call('account.addAddress',this.props.account.address);
             Bert.alert('Congratulations! Your request has been successful!','success','growl-top-right','fa-smile-o');
 

@@ -45,10 +45,7 @@ export default class EventWrapper extends TrackerReact(Component) {
   render() {
      
     if(!this.state.subscription.events.ready)
-        return(
-            <div className="loader">Loading...</div>
-          )
-          
+        <div>Loading...</div>
     return (
           <ReactCSSTransitionGroup
              component="div"
@@ -57,8 +54,7 @@ export default class EventWrapper extends TrackerReact(Component) {
              transitionLeaveTimeout={300}
              transitionAppear={true}
              transitionAppearTimeout={500}>
-             <h1>Events List</h1>
-             <p>This is the list of all the available events.</p>
+             <h1>Event List </h1>
              <ul className="dapp-account-list">
                  {this.events().map((event)=>{
                   return <Event key={event._id} event = {event}/>

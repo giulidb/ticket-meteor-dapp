@@ -41,12 +41,12 @@ export default class EventDetailed extends TrackerReact(Component){
   }
 
    contract(){
-    return Events.findOne({_id: this.props.id});
+    return Events.findOne(new Meteor.Collection.ObjectID(this.props.id));
   }
 
     async getTickets(){
       const TicketItemsResp = await this.TicketsList.getTickets.call();
-      const TicketItems = mapReponseToJSON(TicketItemsResp,['description','TicketPrices','ticketsLeft','TicketsNum'],"arrayOfObject");
+      const TicketItems = mapReponseToJSON(TicketItemsResp,['description','TicketPrices','ticketsLeft'],"arrayOfObject");
       return TicketItems;
   }
 

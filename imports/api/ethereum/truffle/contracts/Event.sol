@@ -135,7 +135,7 @@ contract Event{
        // Sending back the money by simply using
        // organizer.send(tickePrice) is a security risk
        // because it can be prevented by the caller by e.g.
-       // raising the call stack to 1023. It is always safer
+       // raising the call stack to 102 _tic3. It is always safer
        // to let the recipient withdraw their money themselves.	    
       
         Tickets t = allTickets[_type];
@@ -164,19 +164,21 @@ contract Event{
 	}
 
     /// Function to retrieve all the Tickets in the contract
-    function getTickets() public returns(bytes32[],uint[],uint[]){
+    function getTickets() public returns(bytes32[],uint[],uint[],uint[]){
         uint length = allTickets.length;
         bytes32[] memory descriptions = new bytes32[](length);
         uint[] memory ticketPrices = new uint[](length);
         uint[] memory ticketsLeft = new uint[](length);
+        uint[] memory numTickets = new uint[](length);
 
         for(uint i = 0; i < length; i++){
             descriptions[i] = allTickets[i].description;
             ticketPrices[i] = allTickets[i].ticketPrice;
             ticketsLeft[i] = allTickets[i].numTickets - allTickets[i].ticketSold;
+            numTickets[i] = allTickets[i].numTickets;
         }
 
-        return (descriptions,ticketPrices,ticketsLeft);
+        return (descriptions,ticketPrices,ticketsLeft,numTickets);
 
     }
 
