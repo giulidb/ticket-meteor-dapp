@@ -4,9 +4,13 @@ import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import EthereumAccounts from '../EthereumAccounts.jsx';
 
 import TrackerReact from 'meteor/ultimatejs:tracker-react';
+
+// Components
 import { Meteor } from 'meteor/meteor';
 import {UserRegister} from '../../api/userRegister.js';
+import { Ethereum_Accounts } from '../../api/ethereum_accounts.js';
 
+// Ethereum lib
 import web3, { selectContractInstance, mapReponseToJSON } from '../../api/ethereum/web3.js';
 import userRegistry_artifacts from '../../api/ethereum/truffle/build/contracts/userRegistry.json'
  
@@ -20,25 +24,15 @@ export default class AccountsSettings extends TrackerReact(Component) {
         subscription: {
             accounts: Meteor.subscribe('allAccounts'),
             register: Meteor.subscribe('registerAddress'),
-                      },
-        rightVal: "",
+                      }
      }
   }
-
-    async componentWillMount() {
-        var reg = this.getAddressRegister();
-        this.userRegistry = await selectContractInstance(userRegistry_artifacts,reg.address);
-        const right = await this.getRight();
-        this.setState( {rightVal: right} );
-        console.log(this.state.rightVal);
-
-}
 
 
   componentWillUnmount(){
         this.state.subscription.accounts.stop();
         this.state.subscription.register.stop();
-reg
+
   } 
 
 
@@ -46,19 +40,6 @@ reg
         console.log("accounts query: " + Ethereum_Accounts.findOne({owner: Meteor.userId()}));
         return Ethereum_Accounts.findOne({owner: Meteor.userId()});
   }
-
-  async getRight(){
-        let self = this;
-        const RightResp = await this.userRegistry.getRight.call(self.props.account.address);
-        const Right = mapReponseToJSON(RightResp,"","");
-        return Right;
-  }
-
-   getAddressRegister(){
-        return UserRegister.findOne({name: "UserRegister"});
-   }
-
-
 
   accounts(){
         EthAccounts.init();
@@ -70,15 +51,22 @@ reg
 
   }
 
-    activate(){
-            console.log("Activate function: " + this.props.account.address );
+  getRegAddress(){
+      return UserRegister.find({}).fetch();
+  }
+
+    activate(addr){
+            console.log("Activate function: " + addr );
             
             // check if user with Meteor.userId is already in the db
             // if not insert it and add the correspondent address else
             // only update with the new address.
             if(!this.account()){
                       Meteor.call('account.insert');}        
-            Meteor.call('account.addAddress',this.props.account.address);
+            Meteor.call('account.addAddress',addr);
+            
+            // Simulate server Transaction
+            Meteor.call('giveRight',Session.get("reg_address"),addr);
             Bert.alert('Congratulations! Your request has been successful!','success','growl-top-right','fa-smile-o');
 
     
@@ -86,12 +74,19 @@ reg
 
   render() {
 
+    if(!this.state.subscription.register.ready)
+        return(
+            <div className="loader">Loading...</div>
+          )
+     
+     var reg = this.getRegAddress();
+     if(reg.length > 0){  
+              
+               Session.set("reg_address",reg[0].address);
+               console.log(Session.get("reg_address"));
 
-      var active;
-      if(this.state.rightVal != null)
-         active = this.state.rightVal ? "Activated" : "Inactive";
-      var buttonClass = this.state.rightVal ? "selected": ""; 
-
+     }
+ 
     return (
           <ReactCSSTransitionGroup
              component="div"
@@ -104,7 +99,9 @@ reg
              <p>This is the list of your Ethereum connected account, pick one of them to use in this dapp.</p>
              <ul className="dapp-account-list">
                  {this.accounts().map((account)=>{
-                    return(<li key = {account._id}>
+                    return(
+        
+                        <li key = {account._id}>
                                 <div className="row clear">
                                     <div className="col col-5 tablet-col-11 mobile-col-1-2">
                                         <span className="no-tablet no-mobile">
@@ -113,20 +110,20 @@ reg
                                                   onClick = {this.selectAccount.bind(this)}>
                                                   <a className="dapp-identicon dapp-small" //style={{backgroundImage: url(identiconimage.png)}}
                                                   ></a>
-                                                    <EthereumAccounts key={account._id} account = {account}/>
+                                                    <EthereumAccounts key={account._id} account = {account} ref="acc"/>
                                               </button>
                                         </span>
                                     </div>
                                     <div className="col col-3 tablet-col-1 mobile-full">
                                         <span className="no-tablet no-mobile">
-                                                <button disabled = {this.state.rightVal} onClick={this.activate.bind(this)} >
+                                                <button disabled = {this.state.rightVal} onClick={this.activate.bind(this,account.address)} >
                                                     <h3>Activate This Account</h3>
-                                                    Account Status: {active}
+                                                    Account Status: {Session.get(account.address) ? "Activated" : "Inactive"}
                                                 </button>
                                        </span>
                                   </div> 
                                 </div>                     
-                           </li>);}      
+              </li>);}      
                   )
                  }
              </ul> 

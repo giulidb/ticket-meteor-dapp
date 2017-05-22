@@ -1,5 +1,5 @@
 import Web3 from 'web3';
-import {UserRegister} from '../../api/userRegister.js'
+import { UserRegister } from '../../api/userRegister.js'
 import { default as contract } from 'truffle-contract'
 
 // Import our contract artifacts and turn them into usable abstractions.
@@ -52,8 +52,8 @@ if (typeof web3 !== 'undefined') {
     var user;
     userRegistry.new({ from: fromAddr, gasPrice: gasPrice, gas: gas }).then(function(instance) {
         user = instance;
-            //Meteor.call('register.insertRegister',"UserRegister");        
-            Meteor.call('register.updateAddress',"UserRegister",instance.address);
+        //Meteor.call('register.insertRegister', "UserRegister");
+        Meteor.call('register.updateAddress', "UserRegister", instance.address);
         return user.giveRightToUse(account, { from: fromAddr, gasPrice: gasPrice, gas: gas }).then(function() {
             console.log("Transaction complete!");
             user.getRight.call(account, { from: fromAddr, gasPrice: gasPrice, gas: gas }).then(function(value) {
@@ -71,8 +71,8 @@ if (typeof web3 !== 'undefined') {
     var ticketPrice1 = web3.toWei(0.70, 'ether');
     var ticketPrice2 = web3.toWei(0.90, 'ether');
     var ticketPrice3 = web3.toWei(1.40, 'ether');
-    
-    console.log("ticket price: "+ ticketPrice1);
+
+    console.log("ticket price: " + ticketPrice1);
     var eventTimestamp = 1498338000; // 06/24/2017 @9:00pm (UTC)
     Event.new("ArcadeFire Concert", eventTimestamp, 4, { from: fromAddr, gasPrice: gasPrice, gas: gas }).then(function(instance1) {
         console.log(instance1.address);
@@ -116,17 +116,17 @@ if (typeof web3 !== 'undefined') {
     });
 
 
-       Event.new("Turandot", eventTimestamp, 4, { from: fromAddr, gasPrice: gasPrice, gas: gas }).then(function(instance3) {
+    Event.new("Turandot", eventTimestamp, 4, { from: fromAddr, gasPrice: gasPrice, gas: gas }).then(function(instance3) {
         console.log(instance3.address);
         Event.at(instance3.address).then(function(inst3) {
             Meteor.call('events.addAddress', "Turandot", inst3.address);
             inst3.addTickets("Poltrone", web3.toWei(1.99, 'ether'), 100, { from: fromAddr, gasPrice: gasPrice, gas: gas }).then(function(res) {
                 inst3.addTickets("Poltroncina di Gradinata", web3.toWei(1.83, 'ether'), 150, { from: fromAddr, gasPrice: gasPrice, gas: gas }).then(function(value) {
-                  inst3.addTickets("Tribuna - Settore D", web3.toWei(0.83, 'ether'), 200, { from: fromAddr, gasPrice: gasPrice, gas: gas }).then(function(value) {  
-                    inst3.addTickets("Tribuna - Settore C", web3.toWei(0.75, 'ether'), 350, { from: fromAddr, gasPrice: gasPrice, gas: gas }).then(function(value) {
-                        console.log("Tickets added");
+                    inst3.addTickets("Tribuna - Settore D", web3.toWei(0.83, 'ether'), 200, { from: fromAddr, gasPrice: gasPrice, gas: gas }).then(function(value) {
+                        inst3.addTickets("Tribuna - Settore C", web3.toWei(0.75, 'ether'), 350, { from: fromAddr, gasPrice: gasPrice, gas: gas }).then(function(value) {
+                            console.log("Tickets added");
+                        });
                     });
-                  });
                 });
             });
         }).catch(function(e) {
