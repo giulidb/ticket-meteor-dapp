@@ -11,17 +11,12 @@ contract Transport{
     bytes32 public ServiceName;
     // contract's owner
     address public owner;
-    // controller's address
-    address public controller;
     // Contract's balances 
     mapping(address => uint) public balances;
     // AllTickets
     mapping (address => Ticket[]) AllTickets;
-    mapping (address => bytes32[]) PendingRequests;
     //Type of Tickets
     enum TicketTypes{single,carnet,subscription}
-    // UserRegistry contract's instance
-    userRegistry u;
     // Deposit quota
     uint depositQuota;
     uint maxTime;
@@ -31,21 +26,27 @@ contract Transport{
     struct Ticket{
             string description;
             TicketTypes t;
-            uint emissionDate;
-            uint expirationDate; 
+            uint requestedTime;
+            uint emissionTime;
+            uint expirationTime; 
             uint maxUses; //unused for temporal subscription tickets.        
             uint numUsed;
             uint checkedNum;
             uint price;
             bytes32 ticketHash;
+            bool emitted;
+            bool valid;
     }
-
+    
 
     // Use of an event to pass along return values from contracts, 
 	// to an app's frontend
+    event DepositDone(address _from, uint _amount, bytes32 ticketHash, uint _timestamp);
+    event TicketConfigured(address _to, uint _id, bytes32 ticketHash, uint _timestamp);
 	event TicketPayed(address _from, uint _amount, uint _id, uint _timestamp);
+	event DepositRefunded(address _to, uint _amount, uint _timestamp);
   	event TicketChecked(address _user, uint _timestamp);
-	event Checkin(address _to, uint _type, uint _timestamp);
+	event TicketUsed(address _to, uint _index, uint _timestamp);
 	event RevenueCollected(address _owner, uint _amount, uint _timestamp);
 	event TicketsAdded(bytes32 description, uint ticketPrice, uint numTickets);
     event UserRefunded(address _to, uint _amount);
@@ -55,15 +56,6 @@ contract Transport{
 	// thrown.
 	modifier onlyOwner {
 		if (msg.sender != owner)
-			throw;
-		_;
-	}
-
-    // This means that if the controller calls this function, the
-	// function is executed and otherwise, an exception is
-	// thrown.
-    modifier onlyController {
-		if (msg.sender != controller)
 			throw;
 		_;
 	}
@@ -88,7 +80,7 @@ contract Transport{
 
 
     //This means that the function will be executed
-    //only if incomes > 0
+    //only if balances[msg.sender] > 0
     modifier onlyValue() { if(balances[msg.sender]  > 0 ) _; else throw; }
     
     // Block timestamp dependance is a security issue: miners set 
@@ -100,79 +92,147 @@ contract Transport{
     modifier onlyBefore(uint Timestamp){ if(now <= Timestamp) _; else throw;}
     modifier onlyAfter(uint Timestamp){ if(now > Timestamp) _; else throw;}
     
-    //This means that only users with token auth right can call a function
-    modifier onlyRight() {if( u.getRight(msg.sender) == true ) _; else throw; }
-    
 	
 	/// This is the constructor whose code is
     /// run only when the contract is created.	
 	function Transport(bytes32 _name,
-	                   address _controller,
-	                   address userRegistryAddr,
 	                   uint _depositQuota,
 	                   uint _maxTime) {
 		owner = msg.sender;	
-        controller = _controller;
 		ServiceName = _name;
-        u = userRegistry(userRegistryAddr);
         depositQuota = _depositQuota;
         maxTime = _maxTime;
 	}
 	
 	
-    // Step1 - User buyTicket	
-   function makeDeposit(bytes32 transactionHash) onlyRight 
-                          costs(depositQuota,msg.sender)
-                          public payable{
-        balances[msg.sender] += msg.value;
-        PendingRequests[msg.sender].push(transactionHash);                      
-
-                          }
+    // Step1 - User make a deposit and request a Ticket	
+   function makeDeposit(bytes32 _ticketHash)
+                        costs(depositQuota,msg.sender)
+                        public payable{
+        // check if exists already a non solved request
+        if(balances[msg.sender] > 0)
+            throw;
+        // insert a new Pending request
+        uint index = AllTickets[msg.sender].length++;
+        Ticket ticket = AllTickets[msg.sender][index];
+        ticket.requestedTime = now;
+        ticket.ticketHash = _ticketHash;
+        balances[msg.sender] += depositQuota;
+        DepositDone(msg.sender, depositQuota, _ticketHash, now);
+        }
 
     
 	// Step2 - After Step1 Owner can configure the ticket for a certain user
     // or invalidate it if user not has inserted the correct price
     function configureTicket(address addr,
+                             string _description,
+                             TicketTypes _t,
                              uint index,
-                             string description,
-                             TicketTypes t,
-                             uint expirationDate, 
-                             uint maxUses,
-                             uint price
-                             ) onlyOwner public{
+                             uint _expirationTime, 
+                             uint _maxUses,
+                             uint _price
+                             ) onlyOwner
+                               onlyBefore(AllTickets[addr][index].requestedTime + maxTime)
+                            public{
         
-        Ticket ticket = AllTickets[addr][index];
-        if(ticket.ticketHash != sha3(addr,description,price,t,expirationDate,maxUses))
+        Ticket ticket = AllTickets[addr][index]; 
+        if(ticket.ticketHash != sha3(addr,_description,_price,_t,_expirationTime,_maxUses))
             throw;
-            
+        
+        // Configure the ticket
+        ticket.description = _description;
+        ticket.t = _t;
+        ticket.emissionTime = now;
+        ticket.expirationTime = _expirationTime;
+        ticket.maxUses = _maxUses;
+        ticket.numUsed = 0;
+        ticket.checkedNum = 0;
+        ticket.price = _price;
+        ticket.emitted = true;
+        ticket.valid = false;
+        // log this event
+        TicketConfigured(addr, index, sha3(addr,_description,_price,_t,_expirationTime,_maxUses), now);
+        
     }
 
 
     // Step3 - User can buy a ticket
-   function buyTicket(bytes32 _description,uint _type,uint _price)
-                       costs(_price,msg.sender)
-                       onlyRight
+    function buyTicket(uint index)
+                       costs(AllTickets[msg.sender][index].price - depositQuota,msg.sender)
+                       onlyBefore(AllTickets[msg.sender][index].emissionTime + maxTime)
                        public payable{
-        balances[msg.sender] = _price;
-             
+            
+            balances[owner] += AllTickets[msg.sender][index].price;
+            balances[msg.sender] = 0;
+            AllTickets[msg.sender][index].valid = true;
+            // log this event
+            TicketPayed(msg.sender, AllTickets[msg.sender][index].price, index, now);     
   		}
     
-	
-	function useTicket(uint index) onlyRight public returns (bool){
-	 
-	}
-
-    
-    function checkTicket(uint index, address _user) onlyController public returns (bool){
+	// TODO: see if keep it 
+	function useTicket(uint index) onlyBefore(AllTickets[msg.sender][index].expirationTime)
+	                               public returns (bool){
 	    
-            TicketChecked(_user, now);
-	}
+	    Ticket ticket = AllTickets[msg.sender][index];
+	    // enum type   
+	    if((ticket.t == TicketTypes.single && ticket.numUsed >= 1) ||
+	       (ticket.t == TicketTypes.carnet && ticket.numUsed >= ticket.maxUses))
+	            throw;
+        
+        ticket.numUsed++;  
+	    //log this event
+    	TicketUsed(msg.sender, index, now);
+	 }
 
 
     // Withdraw deposit if DT does not retrive the ticket in time
-    function withdrawDeposit() onlyAfter(maxTime){
+    function withdrawDeposit(uint index) onlyValue 
+                               onlyAfter(AllTickets[msg.sender][index].requestedTime + maxTime)
+                               returns(bool){
+        
+        // check if the tickets has been emitted
+        if(AllTickets[msg.sender][index].emitted)
+                throw;
+        
+        uint amount = balances[msg.sender];
+        // Remember to zero the pending refund before
+        // sending to prTransport re-entrancy attacks
+        balances[msg.sender] = 0;
+        if (msg.sender.send(amount)) {
+            DepositRefunded(msg.sender, amount,now);
+            return true;
+        } else {
+            balances[msg.sender] = amount;
+            return false;
+         }
+        
+      
         
     }
+    
+    // Withdraw deposit if user does not buy the ticket in time
+    function collectDeposit(uint index, address addr) 
+                              onlyOwner 
+                              onlyAfter(AllTickets[addr][index].emissionTime + maxTime)
+                              returns (bool)
+        {   //check if user has completed the purchased
+            if(AllTickets[addr][index].valid)
+                throw;
+       
+                uint amount = balances[addr];
+                // Remember to zero the pending refund before
+                // sending to prTransport re-entrancy attacks
+                balances[addr] = 0;
+                if (msg.sender.send(amount)) {
+                    RevenueCollected(msg.sender, amount,now);
+                    return true;
+                } else {
+                    balances[addr] = amount;
+                    return false;
+                 }
+            
+                                  
+                              }
  
   	
     /// Withdraw pattern fot the organizer

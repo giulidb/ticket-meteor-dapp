@@ -1,12 +1,12 @@
 pragma solidity ^0.4.0;
 
-/** @title Contract for tickets sells  .*/
+/** @title Contract for register Users as customers  .*/
 /** @author Giulia Di Bella .*/
 
 contract userRegistry{ 
 
     address public owner;
-    mapping (address => bool) rights;
+    mapping (address => bool) public rights;
 
     // This means that if the owner calls this function, the
 	// function is executed and otherwise, an exception is

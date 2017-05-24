@@ -23,7 +23,6 @@ contract Event{
     uint public MAX_TICKETS;
     // Contract's balance 
     uint public incomes;
-    mapping (address => bool) rights;
 
     // Struct of diffent kind of Tickets
     struct Tickets{
@@ -81,39 +80,20 @@ contract Event{
     //This means that the function will be executed
     //only if incomes > 0
     modifier onlyValue() { if(incomes  > 0 ) _; else throw; }
-    
-    //This means that only users with token auth right can call a function
-    //modifier onlyRight() {if( rights[msg.sender] == true ) _; else throw; }
-    
+      
 	
 	/// This is the constructor whose code is
     /// run only when the contract is created.	
 	function Event
-    (bytes32 _name, uint _eventTime, uint _MAXTICKETS) {
+    (bytes32 _name, uint _eventTime, uint _MAXTICKETS, address userRegistryAddr) {
 		owner = msg.sender;	
 		name = _name;
         eventTime = _eventTime;
         MAX_TICKETS = _MAXTICKETS;
+        u = userRegistry(userRegistryAddr);
 		incomes = 0;
 
 	}
-
-    
-    // Give `user` the right to buy ticket on contracts.
-    // May only be called by `owner`.
-    // This means that owner can open the contract only to 
-    // registered user to an internal db.
-    function giveRightToUse(address _user) onlyOwner public {
-        rights[_user] = true;
-    }
-
-    // Remove `user` the right to buy ticket on contracts.
-    // May only be called by `owner`.
-    // This means that owner can open the contract only to 
-    // registered user to an internal db.
-    function removeRightToUse(address _user) onlyOwner public {
-        rights[_user] = false;
-    }
 	
 	function addTickets(bytes32 _description,
 	                    uint _ticketPrice,
