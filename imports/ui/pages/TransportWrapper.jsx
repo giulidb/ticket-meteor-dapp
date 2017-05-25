@@ -1,12 +1,7 @@
 import React,{Component} from 'react';
 import PropTypes from 'prop-types';
 import {Meteor} from 'meteor/meteor'
-
-import TrackerReact from 'meteor/ultimatejs:tracker-react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
-
-import { Events } from '../../api/events.js';
-import Event from '../Event.jsx';
 
 // Import libraries
 import Web3 from '../../api/ethereum/web3.js';
@@ -17,7 +12,7 @@ import Web3 from '../../api/ethereum/web3.js';
 //import { default as contract } from 'truffle-contract'
 
 // App component - represents the whole app
-export default class EventWrapper extends TrackerReact(Component) {
+export default class TransportWrapper extends Component {
 
   constructor(){
     super();
@@ -35,10 +30,6 @@ export default class EventWrapper extends TrackerReact(Component) {
   componentWillUnmount(){
     this.state.subscription.events.stop();
 
-  }
-
-  events(){
-    return Events.find({}).fetch();
   }
 
 
@@ -60,12 +51,12 @@ export default class EventWrapper extends TrackerReact(Component) {
                  <div className="row clear">
                     <div className="col col-4 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                          <input type="text" name="from" hint="from:" /> 
+                          <input type="text" name="from" value="from:" /> 
                         </span>
                     </div>
                     <div className="col col-4 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                          <input type="text" name="to" hint="to:" /> 
+                          <input type="text" name="to" value="to:" /> 
                         </span>
                     </div>    
                  </div>
@@ -73,7 +64,7 @@ export default class EventWrapper extends TrackerReact(Component) {
                   <div className="row clear">
                     <div className="col col-8 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                          <input type="text" name="type" hint="Ticket type:" /> 
+                          <input type="text" name="type" value="Ticket type:" /> 
                         </span>
                     </div>  
                  </div>
@@ -82,12 +73,12 @@ export default class EventWrapper extends TrackerReact(Component) {
                      <hr/>
                     <div className="col col-4 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                          <input type="text" name="train_type" hint="Train type:" /> 
+                          <input type="text" name="train_type" value="Train type:" /> 
                         </span>
                     </div>
                     <div className="col col-4 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                          <input type="text" name="service_level" hint="Service Level:" /> 
+                          <input type="text" name="service_level" value="Service Level:" /> 
                         </span>
                     </div>    
                  </div>
@@ -114,7 +105,7 @@ export default class EventWrapper extends TrackerReact(Component) {
                     </div>
                     <div className="col col-4 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                            <input type="submit" value="Buy" onClick ={this.buy.bind(this)}/>
+                            <input type="submit" value="Search" />
                         </span>
                     </div>      
                  </div> 

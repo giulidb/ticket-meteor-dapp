@@ -18,7 +18,8 @@ export const MainLayout = ({content}) => (
                         <li><a><h3><AccountsUI/></h3></a></li>
                         <li><a href=""></a></li>
                         <li><a href=""></a></li>
-                        <li><EthereumAccounts account = {EthAccounts.findOne({address: Session.get('account')})}/></li>
+                        {//<li><EthereumAccounts account = {EthAccounts.findOne({address: Session.get('account')})}/></li>
+                        }
              
                     </ul>
                 </nav>
