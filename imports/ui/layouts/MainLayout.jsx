@@ -1,5 +1,7 @@
 import React from 'react';
 import AccountsUI from '../AccountsUI.jsx';
+import EthereumAccounts from '../EthereumAccounts.jsx';
+
 
 export const MainLayout = ({content}) => (
 
@@ -10,10 +12,14 @@ export const MainLayout = ({content}) => (
                         <li><a><h3  className="title" >Ethereum Tickets Dapp</h3></a></li>
                         <li><a href=""></a></li>
                         <li><a href="/"><span><h3>Events</h3></span></a></li>
-                        <li><a href="/transportServices"><span><h3>Transport Services</h3></span></a></li>
-                        <li><a href="/myAccounts"><span><h3>My Accounts</h3></span></a></li>
+                        <li><a href="/transportServices"><span><h3>Transport</h3></span></a></li>
+                        <li><a href="/myAccounts"><span><h3>Exchange</h3></span></a></li>
                         <li><a href="/about"><span><h3>About</h3></span></a></li>
                         <li><a><h3><AccountsUI/></h3></a></li>
+                        <li><a href=""></a></li>
+                        <li><a href=""></a></li>
+                        <li><EthereumAccounts account = {EthAccounts.findOne({address: Session.get('account')})}/></li>
+             
                     </ul>
                 </nav>
         </header>

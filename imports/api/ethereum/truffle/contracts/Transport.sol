@@ -8,13 +8,13 @@ import "./userRegistry.sol";
 contract Transport{ 
 
     // Transport Service's name
-    bytes32 public ServiceName;
+    string ServiceName;
     // contract's owner
     address public owner;
     // Contract's balances 
     mapping(address => uint) public balances;
-    // AllTickets
-    mapping (address => Ticket[]) AllTickets;
+    // TicketsOf
+    mapping (address => Ticket[]) TicketsOf;
     //Type of Tickets
     enum TicketTypes{single,carnet,subscription}
     // Deposit quota
@@ -31,7 +31,6 @@ contract Transport{
             uint expirationTime; 
             uint maxUses; //unused for temporal subscription tickets.        
             uint numUsed;
-            uint checkedNum;
             uint price;
             bytes32 ticketHash;
             bool emitted;
@@ -45,10 +44,8 @@ contract Transport{
     event TicketConfigured(address _to, uint _id, bytes32 ticketHash, uint _timestamp);
 	event TicketPayed(address _from, uint _amount, uint _id, uint _timestamp);
 	event DepositRefunded(address _to, uint _amount, uint _timestamp);
-  	event TicketChecked(address _user, uint _timestamp);
 	event TicketUsed(address _to, uint _index, uint _timestamp);
 	event RevenueCollected(address _owner, uint _amount, uint _timestamp);
-	event TicketsAdded(bytes32 description, uint ticketPrice, uint numTickets);
     event UserRefunded(address _to, uint _amount);
 	
 	// This means that if the owner calls this function, the
@@ -95,7 +92,7 @@ contract Transport{
 	
 	/// This is the constructor whose code is
     /// run only when the contract is created.	
-	function Transport(bytes32 _name,
+	function Transport(string _name,
 	                   uint _depositQuota,
 	                   uint _maxTime) {
 		owner = msg.sender;	
@@ -113,8 +110,8 @@ contract Transport{
         if(balances[msg.sender] > 0)
             throw;
         // insert a new Pending request
-        uint index = AllTickets[msg.sender].length++;
-        Ticket ticket = AllTickets[msg.sender][index];
+        uint index = TicketsOf[msg.sender].length++;
+        Ticket ticket = TicketsOf[msg.sender][index];
         ticket.requestedTime = now;
         ticket.ticketHash = _ticketHash;
         balances[msg.sender] += depositQuota;
@@ -132,10 +129,10 @@ contract Transport{
                              uint _maxUses,
                              uint _price
                              ) onlyOwner
-                               onlyBefore(AllTickets[addr][index].requestedTime + maxTime)
+                               onlyBefore(TicketsOf[addr][index].requestedTime + maxTime)
                             public{
         
-        Ticket ticket = AllTickets[addr][index]; 
+        Ticket ticket = TicketsOf[addr][index]; 
         if(ticket.ticketHash != sha3(addr,_description,_price,_t,_expirationTime,_maxUses))
             throw;
         
@@ -146,7 +143,6 @@ contract Transport{
         ticket.expirationTime = _expirationTime;
         ticket.maxUses = _maxUses;
         ticket.numUsed = 0;
-        ticket.checkedNum = 0;
         ticket.price = _price;
         ticket.emitted = true;
         ticket.valid = false;
@@ -158,22 +154,23 @@ contract Transport{
 
     // Step3 - User can buy a ticket
     function buyTicket(uint index)
-                       costs(AllTickets[msg.sender][index].price - depositQuota,msg.sender)
-                       onlyBefore(AllTickets[msg.sender][index].emissionTime + maxTime)
+                       costs(TicketsOf[msg.sender][index].price - depositQuota,msg.sender)
+                       onlyBefore(TicketsOf[msg.sender][index].emissionTime + maxTime)
                        public payable{
             
-            balances[owner] += AllTickets[msg.sender][index].price;
+            balances[owner] += TicketsOf[msg.sender][index].price;
             balances[msg.sender] = 0;
-            AllTickets[msg.sender][index].valid = true;
+            TicketsOf[msg.sender][index].valid = true;
             // log this event
-            TicketPayed(msg.sender, AllTickets[msg.sender][index].price, index, now);     
+            TicketPayed(msg.sender, TicketsOf[msg.sender][index].price, index, now);     
   		}
     
-	// TODO: see if keep it 
-	function useTicket(uint index) onlyBefore(AllTickets[msg.sender][index].expirationTime)
+	function useTicket(uint index) onlyBefore(TicketsOf[msg.sender][index].expirationTime)
 	                               public returns (bool){
-	    
-	    Ticket ticket = AllTickets[msg.sender][index];
+	     //check if user has completed the purchased
+        if(!TicketsOf[msg.sender][index].valid)
+            throw;
+	    Ticket ticket = TicketsOf[msg.sender][index];
 	    // enum type   
 	    if((ticket.t == TicketTypes.single && ticket.numUsed >= 1) ||
 	       (ticket.t == TicketTypes.carnet && ticket.numUsed >= ticket.maxUses))
@@ -187,16 +184,16 @@ contract Transport{
 
     // Withdraw deposit if DT does not retrive the ticket in time
     function withdrawDeposit(uint index) onlyValue 
-                               onlyAfter(AllTickets[msg.sender][index].requestedTime + maxTime)
+                               onlyAfter(TicketsOf[msg.sender][index].requestedTime + maxTime)
                                returns(bool){
         
         // check if the tickets has been emitted
-        if(AllTickets[msg.sender][index].emitted)
+        if(TicketsOf[msg.sender][index].emitted)
                 throw;
         
         uint amount = balances[msg.sender];
         // Remember to zero the pending refund before
-        // sending to prTransport re-entrancy attacks
+        // sending to avoid re-entrancy attacks
         balances[msg.sender] = 0;
         if (msg.sender.send(amount)) {
             DepositRefunded(msg.sender, amount,now);
@@ -213,15 +210,15 @@ contract Transport{
     // Withdraw deposit if user does not buy the ticket in time
     function collectDeposit(uint index, address addr) 
                               onlyOwner 
-                              onlyAfter(AllTickets[addr][index].emissionTime + maxTime)
+                              onlyAfter(TicketsOf[addr][index].emissionTime + maxTime)
                               returns (bool)
         {   //check if user has completed the purchased
-            if(AllTickets[addr][index].valid)
+            if(TicketsOf[addr][index].valid)
                 throw;
        
                 uint amount = balances[addr];
                 // Remember to zero the pending refund before
-                // sending to prTransport re-entrancy attacks
+                // sending to avoid re-entrancy attacks
                 balances[addr] = 0;
                 if (msg.sender.send(amount)) {
                     RevenueCollected(msg.sender, amount,now);
@@ -240,7 +237,7 @@ contract Transport{
 	    
         uint amount = balances[msg.sender];
         // Remember to zero the pending refund before
-        // sending to prTransport re-entrancy attacks
+        // sending to avoid re-entrancy attacks
         balances[msg.sender] = 0;
         if (msg.sender.send(amount)) {
             RevenueCollected(msg.sender, amount,now);

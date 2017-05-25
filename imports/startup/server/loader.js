@@ -33,7 +33,7 @@ var userRegistry = contract(userregistry_artifacts);
 userRegistry.setProvider(provider);
 var Event = contract(event_artifacts);
 Event.setProvider(provider);
-var Transport = contract(event_artifacts);
+var Transport = contract(transport_artifacts);
 Transport.setProvider(provider);
 
 // Load Accounts
@@ -90,9 +90,6 @@ Event.new("ArcadeFire Concert", eventTimestamp, 4, userRegistryAddress, { from: 
             inst.addTickets("Tribuna Primo Settore", ticketPrice2, 100, { from: fromAddr, gasPrice: gasPrice, gas: gas }).then(function(value) {
                 inst.addTickets("Tribuna Secondo Settore", ticketPrice3, 150, { from: fromAddr, gasPrice: gasPrice, gas: gas }).then(function(value) {
                     console.log("Tickets added");
-                    inst.getRight.call(account).then(function(value) {
-                        console.log("right of" + account + ": " + value);
-                    });
                 });
 
             });
@@ -147,9 +144,11 @@ Event.new("Turandot", eventTimestamp, 4, userRegistryAddress, { from: fromAddr, 
     console.log(e);
 });
 
-/*Transport.new("Trenitalia", 4, userRegistryAddress, { from: fromAddr, gasPrice: gasPrice, gas: gas }).then(function(instance3) {
-    console.log(instance3.address);
+var maxTimestamp = 1800; //01/01/1970 @ 12:30am (UTC) added to current timestamp is equivalent to add 30 min
+var depositQuota = 10;
+Transport.new("Trenitalia", depositQuota, maxTimestamp, { from: fromAddr, gasPrice: gasPrice, gas: gas }).then(function(instance4) {
+    console.log(instance4.address + " Transport contract deployed");
 
 }).catch(function(e) {
     console.log(e);
-});*/
+});

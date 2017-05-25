@@ -1,93 +1,60 @@
 import React,{Component} from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
-
-import EthereumAccounts from '../EthereumAccounts.jsx';
-
-import TrackerReact from 'meteor/ultimatejs:tracker-react';
+import NumericInput from 'react-numeric-input';
 
 // Components
 import { Meteor } from 'meteor/meteor';
-import {UserRegister} from '../../api/userRegister.js';
-import { Ethereum_Accounts } from '../../api/ethereum_accounts.js';
 
 // Ethereum lib
 import web3, { selectContractInstance, mapReponseToJSON } from '../../api/ethereum/web3.js';
-import userRegistry_artifacts from '../../api/ethereum/truffle/build/contracts/userRegistry.json'
  
 
-export default class AccountsSettings extends TrackerReact(Component) {
+export default class AccountsSettings extends Component {
 
-  constructor(){
-    super();
-      this.state = {
+    constructor(){
+        super();
 
-        subscription: {
-            accounts: Meteor.subscribe('allAccounts'),
-            register: Meteor.subscribe('registerAddress'),
-                      }
-     }
+        this.state = {
+             subscription: {
+            accounts: Meteor.subscribe('allAccounts')},
+            eur: '0',
+            eth: '0',
+            fee: '0',
+            total: '0'
+
+        }
+        
   }
 
-
-  componentWillUnmount(){
+    componentWillUnmount(){
         this.state.subscription.accounts.stop();
-        this.state.subscription.register.stop();
-
   } 
 
+    convertEur(){
+            console.log( EthTools.formatBalance(EthTools.toWei(this.refs.Eur.state.value,"eur"),'ether'));
+            var eur = this.refs.Eur.state.value;
+            this.refs.Eth.value = EthTools.formatBalance(EthTools.toWei(eur,"eur"),'0.00','ether');
+            var fee = eur * 0.02
+            this.refs.fee.value = fee;
+            this.refs.total.value = eur + fee;
 
-   account(){
-        console.log("accounts query: " + Ethereum_Accounts.findOne({owner: Meteor.userId()}));
-        return Ethereum_Accounts.findOne({owner: Meteor.userId()});
-  }
+    }
 
-  accounts(){
-        EthAccounts.init();
-        return EthAccounts.find({},{sort:{name: +1}}).fetch();      
-  }
+    buy(){
+        console.log(this.refs.total.value);
+        // Simulate server Transaction
+        console.log(EthAccounts.findOne({address: Session.get('account')}));
+        Meteor.call('sendEther',Session.get('account'),EthTools.toWei(this.refs.total.value,"eur"));
+        Bert.alert('Congratulations! Send Ethers bought correctly','success','growl-top-right','fa-smile-o');
+        console.log("Account: "+Session.get('account')+" balance: ");
+        console.log(EthAccounts.findOne({address: Session.get('account')}));
+        console.log(EthAccounts.find({}).fetch());
 
-  selectAccount(e){
-        Session.set('account',e.target.name);
+    }
 
-  }
-
-  getRegAddress(){
-      return UserRegister.find({}).fetch();
-  }
-
-    activate(addr){
-            console.log("Activate function: " + addr );
-            
-            // check if user with Meteor.userId is already in the db
-            // if not insert it and add the correspondent address else
-            // only update with the new address.
-            if(!this.account()){
-                      Meteor.call('account.insert');}        
-            Meteor.call('account.addAddress',addr);
-            
-            // Simulate server Transaction
-            Meteor.call('giveRight',Session.get("reg_address"),addr);
-            Bert.alert('Congratulations! Your request has been successful!','success','growl-top-right','fa-smile-o');
-
-    
-  }
-
-  render() {
-
-    if(!this.state.subscription.register.ready)
-        return(
-            <div className="loader">Loading...</div>
-          )
-     
-     var reg = this.getRegAddress();
-     if(reg.length > 0){  
-              
-               Session.set("reg_address",reg[0].address);
-               console.log(Session.get("reg_address"));
-
-     }
+    render() {
  
-    return (
+       return (
           <ReactCSSTransitionGroup
              component="div"
              transitionName="route"
@@ -95,39 +62,77 @@ export default class AccountsSettings extends TrackerReact(Component) {
              transitionLeaveTimeout={300}
              transitionAppear={true}
              transitionAppearTimeout={500}>
-             <h1>My Accounts List</h1>
-             <p>This is the list of your Ethereum connected account, pick one of them to use in this dapp.</p>
-             <ul className="dapp-account-list">
-                 {this.accounts().map((account)=>{
-                    return(
-        
-                        <li key = {account._id}>
-                                <div className="row clear">
-                                    <div className="col col-5 tablet-col-11 mobile-col-1-2">
-                                        <span className="no-tablet no-mobile">
-                                             <button className = {Session.get('account') == account.address ? "selected" : ""}
-                                                  name = {account.address}
-                                                  onClick = {this.selectAccount.bind(this)}>
-                                                  <a className="dapp-identicon dapp-small" //style={{backgroundImage: url(identiconimage.png)}}
-                                                  ></a>
-                                                    <EthereumAccounts key={account._id} account = {account} ref="acc"/>
-                                              </button>
-                                        </span>
-                                    </div>
-                                    <div className="col col-3 tablet-col-1 mobile-full">
-                                        <span className="no-tablet no-mobile">
-                                                <button disabled = {this.state.rightVal} onClick={this.activate.bind(this,account.address)} >
-                                                    <h3>Activate This Account</h3>
-                                                    Account Status: {Session.get(account.address) ? "Activated" : "Inactive"}
-                                                </button>
-                                       </span>
-                                  </div> 
-                                </div>                     
-              </li>);}      
-                  )
-                 }
-             </ul> 
-             
+             <h1>Exchange</h1>
+             <p>Buy Ethers with our exchange Eur/Eth service </p>
+             <form>
+                 
+                 <div className="row clear">
+                    <div className="col col-2 tablet-col-11 mobile-col-1-2">
+                        <span className="no-tablet no-mobile">
+                           <h3>Eur:</h3> 
+                        </span>
+                    </div>
+                    <div className="col col-4 tablet-col-11 mobile-col-1-2">
+                        <span className="no-tablet no-mobile">
+                            <NumericInput ref='Eur' precision={2} min={0} className='form-control' value = {0} onChange={this.convertEur.bind(this)}/>
+                        </span>
+                    </div>    
+                 </div>
+                 <br/>
+                  <div className="row clear">
+                    <div className="col col-2 tablet-col-11 mobile-col-1-2">
+                        <span className="no-tablet no-mobile">
+                           <h3>Eth:</h3> 
+                        </span>
+                    </div>
+                    <div className="col col-4 tablet-col-11 mobile-col-1-2">
+                        <span className="no-tablet no-mobile">
+                            <input ref="Eth" className='form-control' value = {this.state.fee} disabled={true}/>
+                        </span>
+                    </div>    
+                 </div>
+                 <br/>
+                 <div className="row clear">
+                     <hr/>
+                    <div className="col col-2 tablet-col-11 mobile-col-1-2">
+                        <span className="no-tablet no-mobile">
+                           <h3>2% fee in Eur:</h3> 
+                        </span>
+                    </div>
+                    <div className="col col-4 tablet-col-11 mobile-col-1-2">
+                        <span className="no-tablet no-mobile">
+                            <input ref="fee" className='form-control' value = {this.state.fee} disabled={true}/>
+                        </span>
+                    </div>    
+                 </div>
+                 <br/>
+                 <div className="row clear">
+                    <div className="col col-2 tablet-col-11 mobile-col-1-2">
+                        <span className="no-tablet no-mobile">
+                           <h3>Total in eur:</h3> 
+                        </span>
+                    </div>
+                    <div className="col col-4 tablet-col-11 mobile-col-1-2">
+                        <span className="no-tablet no-mobile">
+                            <input ref="total" className='form-control' value = {this.state.total} disabled={true}/>
+                        </span>
+                    </div>    
+                 </div>
+                  </form> 
+                 <br/>
+                 <div className="row clear">
+                     <div className="col col-2 tablet-col-11 mobile-col-1-2">
+                        <span className="no-tablet no-mobile">
+                            <h3></h3>
+                        </span>
+                    </div>
+                    <div className="col col-4 tablet-col-11 mobile-col-1-2">
+                        <span className="no-tablet no-mobile">
+                            <input type="submit" value="Buy" onClick ={this.buy.bind(this)}/>
+                        </span>
+                    </div>      
+                 </div>   
+                 
          </ReactCSSTransitionGroup>
 
     );

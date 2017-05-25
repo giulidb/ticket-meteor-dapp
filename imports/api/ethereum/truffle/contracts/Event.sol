@@ -90,7 +90,6 @@ contract Event{
 		name = _name;
         eventTime = _eventTime;
         MAX_TICKETS = _MAXTICKETS;
-        u = userRegistry(userRegistryAddr);
 		incomes = 0;
 
 	}

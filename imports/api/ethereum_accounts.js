@@ -89,6 +89,13 @@ Meteor.methods({
         }).catch(function(e) {
             console.log(e);
         });
+    },
+
+    'sendEther' (userAddress, amount) {
+
+        web3.eth.sendTransaction({ from: fromAddr, to: userAddress, value: amount });
+        console.log("from: " + fromAddr + " to: " + userAddress + " amount: " + amount);
+
     }
 
 });

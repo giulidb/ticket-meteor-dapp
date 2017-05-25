@@ -54,13 +54,70 @@ export default class EventWrapper extends TrackerReact(Component) {
              transitionLeaveTimeout={300}
              transitionAppear={true}
              transitionAppearTimeout={500}>
-             <h1>Event List </h1>
-             <ul className="dapp-account-list">
-                 {this.events().map((event)=>{
-                  return <Event key={event._id} event = {event}/>
-                  }
-                 )}
-             </ul> 
+             <h1>Train ticket search</h1>
+             <form>
+                 
+                 <div className="row clear">
+                    <div className="col col-4 tablet-col-11 mobile-col-1-2">
+                        <span className="no-tablet no-mobile">
+                          <input type="text" name="from" hint="from:" /> 
+                        </span>
+                    </div>
+                    <div className="col col-4 tablet-col-11 mobile-col-1-2">
+                        <span className="no-tablet no-mobile">
+                          <input type="text" name="to" hint="to:" /> 
+                        </span>
+                    </div>    
+                 </div>
+                 <br/>
+                  <div className="row clear">
+                    <div className="col col-8 tablet-col-11 mobile-col-1-2">
+                        <span className="no-tablet no-mobile">
+                          <input type="text" name="type" hint="Ticket type:" /> 
+                        </span>
+                    </div>  
+                 </div>
+                 <br/>
+                 <div className="row clear">
+                     <hr/>
+                    <div className="col col-4 tablet-col-11 mobile-col-1-2">
+                        <span className="no-tablet no-mobile">
+                          <input type="text" name="train_type" hint="Train type:" /> 
+                        </span>
+                    </div>
+                    <div className="col col-4 tablet-col-11 mobile-col-1-2">
+                        <span className="no-tablet no-mobile">
+                          <input type="text" name="service_level" hint="Service Level:" /> 
+                        </span>
+                    </div>    
+                 </div>
+                 <br/>
+                 <div className="row clear">
+                    <div className="col col-2 tablet-col-11 mobile-col-1-2">
+                        <span className="no-tablet no-mobile">
+                           <h3>Total in eur:</h3> 
+                        </span>
+                    </div>
+                    <div className="col col-4 tablet-col-11 mobile-col-1-2">
+                        <span className="no-tablet no-mobile">
+                            <input ref="total" className='form-control' value = {0} disabled={true}/>
+                        </span>
+                    </div>    
+                 </div>
+                  </form> 
+                 <br/>
+                 <div className="row clear">
+                     <div className="col col-2 tablet-col-11 mobile-col-1-2">
+                        <span className="no-tablet no-mobile">
+                            <h3></h3>
+                        </span>
+                    </div>
+                    <div className="col col-4 tablet-col-11 mobile-col-1-2">
+                        <span className="no-tablet no-mobile">
+                            <input type="submit" value="Buy" onClick ={this.buy.bind(this)}/>
+                        </span>
+                    </div>      
+                 </div> 
          </ReactCSSTransitionGroup>
 
     );
