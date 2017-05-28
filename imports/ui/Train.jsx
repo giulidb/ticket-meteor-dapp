@@ -18,21 +18,21 @@ export default class Train extends Component {
                 <button>     
                     <div className="col col-2 tablet-col-2 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                                    <h3>{dP.getHours()} : {dP.getMinutes()}</h3>
+                                    <h3>{("0" + (dP.getHours() + 1)).slice(-2)} : {("0" + (dP.getMinutes() + 1)).slice(-2)}</h3>
                                     <span>{this.props.train.origine}</span>
                         </span>
                     </div>
 
                      <div className="col col-2 tablet-col-2 mobile-full">
                         <span className="no-tablet no-mobile">
-                                <h3>{dA.getHours()} : {dA.getMinutes()}</h3>
+                                <h3>{("0" + (dA.getHours() + 1)).slice(-2)} : {("0" + (dA.getMinutes() + 1)).slice(-2)}</h3>
                                 <span>{this.props.train.destinazione}</span>
                         </span>
                     </div>
 
                     <div className="col col-2 tablet-col-2 mobile-full">
                         <span className="no-tablet no-mobile">
-                                <span>{travelTime.getHours()} : {travelTime.getMinutes()}</span>
+                                <span>{("0" + (travelTime.getHours() + 1)).slice(-2)} : {("0" + (travelTime.getMinutes() + 1)).slice(-2)}</span>
 
                         </span>
                     </div>

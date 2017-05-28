@@ -17,7 +17,9 @@ export default class TransportWrapper extends TrackerReact(Component) {
 
     this.state = {
         results: [],
-        startDate: moment()
+        startDate: moment(),
+        origin: "from:",
+        destination: "to: "
     }
 
   }
@@ -26,14 +28,35 @@ export default class TransportWrapper extends TrackerReact(Component) {
       this.setState({startDate:date});
   }
 
-   search(){
-      console.log("search");
-      var self = this;
-      var originId = 6009;
+  depChange(e){
+         this.setState({origin: e.target.value});
+         Meteor.call("REST.stationID", e.target.value, (error, response)=>{
+            this.setState({originId: response});
+      });
+  }
+
+  destChange(e){
+         this.setState({destination: e.target.value});
+         Meteor.call("REST.stationID", e.target.value, (error, response)=>{
+            this.setState({destId: response});
+      });
+  }
+
+  handleData(){
       var destId = 6500;
+      console.log(this.state.originId);
+      console.log(this.state.destId);
+
       var d =  new Date(this.state.startDate);
-      var date = d.getFullYear() + '-' + ("0" + (d.getMonth() + 1)).slice(-2) + '-' + ("0" + (d.getDay() + 1)).slice(-2) + 'T' + this.refs.hour.state.value+':00:00'
-      var link = 'http://www.viaggiatreno.it/viaggiatrenonew/resteasy/viaggiatreno/soluzioniViaggioNew/' + originId + '/' + destId + '/' + date;
+      var date = d.getFullYear() + '-' + ("0" + (d.getMonth() + 1)).slice(-2) + '-' + ("0" + (d.getDay() + 1)).slice(-2) + 'T' + ("0" + (this.refs.hour.state.value + 1)).slice(-2)+':00:00'
+      var link = 'http://www.viaggiatreno.it/viaggiatrenonew/resteasy/viaggiatreno/soluzioniViaggioNew/' + this.state.originId.replace(/(?:\r\n|\r|\n)/g, '') + '/' + destId + '/' + date;
+      return link;
+}
+
+   search(){
+     
+      var self = this;
+      var link = this.handleData();
       console.log(link);
 
       Meteor.call("RESTcall", link, (error, response)=>{
@@ -123,17 +146,16 @@ export default class TransportWrapper extends TrackerReact(Component) {
          <div>
              <h1>Train tickets search</h1>
              <p>Insert search parameters</p>
-             <form>
-                 
-                 <div className="row clear">
+             
+              <div className="row clear">
                     <div className="col col-3 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                          <label>Departure: </label><input type="text" name="from" value="from:" /> 
+                          <label>Departure: </label><input type="text" name="from" value={this.state.origin} onChange={this.depChange.bind(this)} /> 
                         </span>
                     </div>
                     <div className="col col-3 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                          <label>Destination: </label><input type="text" name="to" value="to:" /> 
+                          <label>Destination: </label><input type="text" name="to" value={this.state.destination} onChange={this.destChange.bind(this)}/> 
                         </span>
                     </div>
                     <div className="col col-2 tablet-col-11 mobile-col-1-2">
@@ -156,7 +178,8 @@ export default class TransportWrapper extends TrackerReact(Component) {
                            <label>Children: </label><NumericInput className='form-control' min ={0} max = {4} value ={0}/>
                         </span>
                     </div>  
-                 </div>
+
+                    </div>
                  <br/>
                  <div className="row clear">
                     
@@ -170,20 +193,20 @@ export default class TransportWrapper extends TrackerReact(Component) {
                           <label>Service Level:</label><input type="text" name="train_type" value="All" />
                         </span>
                     </div> 
-                    <div className="col col-4 tablet-col-11 mobile-col-1-2">
+                    <div className="col col-3 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                            <h3></h3>
+                          <label>Ticket Type:</label><input type="text" name="train_type" value="All" />
                         </span>
                     </div>
-   
                  </div>
-
-                  </form> 
-                    <div className="col col-2 tablet-col-11 mobile-col-1-2">
+                  <div className="row clear">
+                      <div className="col col-2 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                            <input type="submit" value="Search" onClick={this.search.bind(this)} />
+                            <label>{" "}</label><input type="submit" value="Search" onClick={this.search.bind(this)} />
                         </span>
-                    </div> <br/>
+                    </div>
+                  </div>
+                     <br/>
                     <hr/>
                        {this.renderResults()}
    
