@@ -8,23 +8,23 @@ import "./userRegistry.sol";
 contract Transport{ 
 
     // Transport Service's name
-    string ServiceName;
+    string public ServiceName;
     // contract's owner
     address public owner;
     // Contract's balances 
     mapping(address => uint) public balances;
     // TicketsOf
-    mapping (address => Ticket[]) TicketsOf;
+    mapping (address => Ticket[]) public TicketsOf;
     //Type of Tickets
     enum TicketTypes{single,carnet,subscription}
     // Deposit quota
-    uint depositQuota;
-    uint maxTime;
+    uint public depositQuota ;
+    uint public maxTime;
     
     // Struct represent a single Ticket 
     // initialized in configureTicket() by the owner
     struct Ticket{
-            string description;
+            bytes32 description;
             TicketTypes t;
             uint requestedTime;
             uint emissionTime;
@@ -103,7 +103,7 @@ contract Transport{
 	
 	
     // Step1 - User make a deposit and request a Ticket	
-   function makeDeposit(bytes32 _ticketHash)
+   function makeDeposit(bytes32 _description)
                         costs(depositQuota,msg.sender)
                         public payable{
         // check if exists already a non solved request
@@ -113,16 +113,17 @@ contract Transport{
         uint index = TicketsOf[msg.sender].length++;
         Ticket ticket = TicketsOf[msg.sender][index];
         ticket.requestedTime = now;
-        ticket.ticketHash = _ticketHash;
+        ticket.description = _description;
+        ticket.ticketHash = sha3(msg.sender,_description);
         balances[msg.sender] += depositQuota;
-        DepositDone(msg.sender, depositQuota, _ticketHash, now);
+        DepositDone(msg.sender, depositQuota, ticket.ticketHash, now);
         }
 
     
 	// Step2 - After Step1 Owner can configure the ticket for a certain user
     // or invalidate it if user not has inserted the correct price
     function configureTicket(address addr,
-                             string _description,
+                             bytes32 _description,
                              TicketTypes _t,
                              uint index,
                              uint _expirationTime, 
@@ -133,7 +134,7 @@ contract Transport{
                             public{
         
         Ticket ticket = TicketsOf[addr][index]; 
-        if(ticket.ticketHash != sha3(addr,_description,_price,_t,_expirationTime,_maxUses))
+        if(ticket.ticketHash != sha3(addr,_description))
             throw;
         
         // Configure the ticket
@@ -147,7 +148,7 @@ contract Transport{
         ticket.emitted = true;
         ticket.valid = false;
         // log this event
-        TicketConfigured(addr, index, sha3(addr,_description,_price,_t,_expirationTime,_maxUses), now);
+        TicketConfigured(addr, index, sha3(addr,_description), now);
         
     }
 
@@ -180,6 +181,29 @@ contract Transport{
 	    //log this event
     	TicketUsed(msg.sender, index, now);
 	 }
+
+     /// Function to get user ticket id eventually returns 0 if 
+    /// user has not bought any tickets.
+    function getTickets(address user) public returns(bytes32[],uint[],uint[],bool[],bool[]){
+        uint length = TicketsOf[user].length;
+        bytes32[] memory descriptions = new bytes32[](length);
+        uint[] memory requestedTime = new uint[](length);
+        uint[] memory emissionTimes = new uint[](length);
+        bool[] memory emitted = new bool [](length);
+        bool[] memory valid = new bool [](length);
+
+        for(uint i = 0; i < length; i++){
+            descriptions[i] = TicketsOf[user][i].description;
+            requestedTime[i] = TicketsOf[user][i].requestedTime;
+            emissionTimes[i] = TicketsOf[user][i].emissionTime;
+            emitted[i] = TicketsOf[user][i].emitted;
+            valid[i] = TicketsOf[user][i].valid;
+
+
+        }
+
+        return (descriptions,requestedTime,emissionTimes,emitted,valid);
+    }
 
 
     // Withdraw deposit if DT does not retrive the ticket in time

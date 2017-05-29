@@ -1,5 +1,5 @@
 import Web3 from 'web3';
-import { UserRegister } from '../../api/userRegister.js'
+import { transport } from '../../api/transport.js'
 import { default as contract } from 'truffle-contract'
 
 // Import our contract artifacts and turn them into usable abstractions.
@@ -56,7 +56,7 @@ web3.eth.getAccounts(function(err, accs) {
 
 // Initialize contracts
 var user;
-var userRegistryAddress;
+/*var userRegistryAddress;
 userRegistry.new({ from: fromAddr, gasPrice: gasPrice, gas: gas }).then(function(instance) {
     user = instance;
     userRegistryAddress = instance.address;
@@ -73,7 +73,7 @@ userRegistry.new({ from: fromAddr, gasPrice: gasPrice, gas: gas }).then(function
 
 }).catch(function(e) {
     console.log(e);
-});
+});*/
 
 var event;
 var ticketPrice1 = web3.toWei(0.70, 'ether');
@@ -82,7 +82,7 @@ var ticketPrice3 = web3.toWei(1.40, 'ether');
 
 console.log("ticket price: " + ticketPrice1);
 var eventTimestamp = 1498338000; // 06/24/2017 @9:00pm (UTC)
-Event.new("ArcadeFire Concert", eventTimestamp, 4, userRegistryAddress, { from: fromAddr, gasPrice: gasPrice, gas: gas }).then(function(instance1) {
+Event.new("ArcadeFire Concert", eventTimestamp, 4, { from: fromAddr, gasPrice: gasPrice, gas: gas }).then(function(instance1) {
     console.log(instance1.address);
     Event.at(instance1.address).then(function(inst) {
         Meteor.call('events.addAddress', "Arcade Fire", inst.address);
@@ -104,7 +104,7 @@ Event.new("ArcadeFire Concert", eventTimestamp, 4, userRegistryAddress, { from: 
 
 var ticketPrice4 = web3.toWei(1.83, 'ether');
 
-Event.new("Eddie Vedder Concert", eventTimestamp, 4, userRegistryAddress, { from: fromAddr, gasPrice: gasPrice, gas: gas }).then(function(instance2) {
+Event.new("Eddie Vedder Concert", eventTimestamp, 4, { from: fromAddr, gasPrice: gasPrice, gas: gas }).then(function(instance2) {
     console.log(instance2.address);
     Event.at(instance2.address).then(function(inst2) {
         Meteor.call('events.addAddress', "Eddie Vedder", inst2.address);
@@ -124,7 +124,7 @@ Event.new("Eddie Vedder Concert", eventTimestamp, 4, userRegistryAddress, { from
 });
 
 
-Event.new("Turandot", eventTimestamp, 4, userRegistryAddress, { from: fromAddr, gasPrice: gasPrice, gas: gas }).then(function(instance3) {
+Event.new("Turandot", eventTimestamp, 4, { from: fromAddr, gasPrice: gasPrice, gas: gas }).then(function(instance3) {
     console.log(instance3.address);
     Event.at(instance3.address).then(function(inst3) {
         Meteor.call('events.addAddress', "Turandot", inst3.address);
@@ -145,9 +145,11 @@ Event.new("Turandot", eventTimestamp, 4, userRegistryAddress, { from: fromAddr, 
 });
 
 var maxTimestamp = 1800; //01/01/1970 @ 12:30am (UTC) added to current timestamp is equivalent to add 30 min
-var depositQuota = 10;
+var depositQuota = web3.toWei(0.0032, 'ether');
 Transport.new("Trenitalia", depositQuota, maxTimestamp, { from: fromAddr, gasPrice: gasPrice, gas: gas }).then(function(instance4) {
     console.log(instance4.address + " Transport contract deployed");
+    // Meteor.call('contracts.insertRegister', "Transport");
+    Meteor.call('contracts.updateAddress', "Transport", instance4.address);
 
 }).catch(function(e) {
     console.log(e);

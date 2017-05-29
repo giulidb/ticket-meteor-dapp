@@ -85,7 +85,7 @@ contract Event{
 	/// This is the constructor whose code is
     /// run only when the contract is created.	
 	function Event
-    (bytes32 _name, uint _eventTime, uint _MAXTICKETS, address userRegistryAddr) {
+    (bytes32 _name, uint _eventTime, uint _MAXTICKETS) {
 		owner = msg.sender;	
 		name = _name;
         eventTime = _eventTime;

@@ -7,6 +7,8 @@ import TransportWrapper from '../imports/ui/pages/TransportWrapper.jsx';
 
 import About from '../imports/ui/pages/About.jsx'
 import EventDetailed from '../imports/ui/pages/EventDetailed.jsx'
+import TrainDetailed from '../imports/ui/pages/TrainDetailed.jsx'
+
 import AccountsSettings from '../imports/ui/pages/AccountsSettings.jsx'
 import '../imports/startup/accounts-config.js';
 
@@ -55,6 +57,14 @@ FlowRouter.route('/events/:id', {
     action(params){
         mount(MainLayout,{
             content: (<EventDetailed id={params.id}/>)
+        })
+    }
+});
+
+FlowRouter.route('/trains/:id', {
+    action(params){
+        mount(MainLayout,{
+            content: (<TrainDetailed id={params.id}/>)
         })
     }
 });

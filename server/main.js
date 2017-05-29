@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import '../imports/api/userRegister.js';
+import '../imports/api/transport.js';
 import '../imports/api/events.js';
 import '../imports/api/ethereum_accounts';
 //import '../imports/startup/server/populateCollection.js';

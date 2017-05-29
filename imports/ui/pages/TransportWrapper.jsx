@@ -7,8 +7,11 @@ import TrackerReact from 'meteor/ultimatejs:tracker-react';
 import NumericInput from 'react-numeric-input';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
-import ReactDOM from 'react-dom';
 
+// Ethereum libraries and contracts
+import web3, { selectContractInstance, mapReponseToJSON } from '../../api/ethereum/web3.js';
+import transport_artifacts from '../../api/ethereum/truffle/build/contracts/Transport.json'
+import {transport} from '../../api/transport.js'
 
 export default class TransportWrapper extends TrackerReact(Component) {
 
@@ -16,7 +19,13 @@ export default class TransportWrapper extends TrackerReact(Component) {
     super();
 
     this.state = {
+         subscription: {
+                contract: Meteor.subscribe('contractAddress')
+            },
         results: [],
+        account: Session.get('account'),
+        gasPrice: 100000000000,
+        gas: 2500000,
         startDate: moment(),
         origin: "from:",
         destination: "to: "
@@ -24,6 +33,11 @@ export default class TransportWrapper extends TrackerReact(Component) {
 
   }
 
+   componentWillUnmount(){
+        this.state.subscription.contract.stop();
+
+  }
+  
   handleDateChange(date){
       this.setState({startDate:date});
   }
@@ -82,7 +96,6 @@ export default class TransportWrapper extends TrackerReact(Component) {
    
   }
 
-  
 
     renderResults(){
 
@@ -140,10 +153,33 @@ export default class TransportWrapper extends TrackerReact(Component) {
 
   }
 
+    /* function for Ethereum */
+    getContractAddr(){
+        return transport.find({}).fetch();
+  }
+
+    async loadTickets(){
+        console.log("load Tickets");
+        this.Transport = await selectContractInstance(transport_artifacts,Session.get("contract_address"));
+        const TicketItemsResp = await this.Transport.getTickets.call(this.state.account);
+        console.log(TicketItemsResp);
+        const TicketItems = mapReponseToJSON(TicketItemsResp,['description','requestedTimes','emissionTimes','emitted','valid'],"arrayOfObject");
+        console.log(TicketItems);
+ }
+  
+
   render() {
+
+     var addr = this.getContractAddr();
+        if(addr.length > 0){  
+              
+               Session.set("contract_address",addr[0].address);
+               this.loadTickets();
+       }  
      
     return (
          <div>
+
              <h1>Train tickets search</h1>
              <p>Insert search parameters</p>
              
@@ -179,11 +215,11 @@ export default class TransportWrapper extends TrackerReact(Component) {
                         </span>
                     </div>  
 
-                    </div>
+            </div>
                  <br/>
-                 <div className="row clear">
+             <div className="row clear">
                     
-                    <div className="col col-3 tablet-col-11 mobile-col-1-2">
+                   {/*} <div className="col col-3 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
                            <label>Train type:</label><input type="text" name="train_type" value="All" /> 
                         </span>
@@ -197,19 +233,36 @@ export default class TransportWrapper extends TrackerReact(Component) {
                         <span className="no-tablet no-mobile">
                           <label>Ticket Type:</label><input type="text" name="train_type" value="All" />
                         </span>
+                    </div>*/}
+
+                    <div className="col col-9 tablet-col-11 mobile-col-1-2">
+                        <span className="no-tablet no-mobile">
+                            <h3></h3>
+                        </span>
                     </div>
-                 </div>
-                  <div className="row clear">
-                      <div className="col col-2 tablet-col-11 mobile-col-1-2">
+                 
+                    <div className="col col-2 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
                             <label>{" "}</label><input type="submit" value="Search" onClick={this.search.bind(this)} />
                         </span>
                     </div>
-                  </div>
-                     <br/>
+                </div>
+                     <br/><br/>
                     <hr/>
                        {this.renderResults()}
-   
+                    
+                    
+                    
+                    <br/>
+
+                 <div>
+                    <h1>My Tickets</h1>
+                    <button>See my tickets</button>
+                </div>
+
+                <br/><br/>
+                <hr/>             
+           
          </div>
 
     );
