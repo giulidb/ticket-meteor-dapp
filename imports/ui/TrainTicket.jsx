@@ -22,21 +22,29 @@ export default class TrainTicket extends Component {
         
   }
 
+   seeTicket(){
+        Session.set("trainTicket",this.props.item);
+        FlowRouter.go('/trains/'+ this.props.index);
+    }
+
     render() {
 
+        console.log(this.props.item.description);
+        var item = JSON.parse(this.props.item.description);
 
         return (
                 
         <li>
             <div className="row clear">
+                <button  onClick={this.seeTicket.bind(this)}> 
                     <div className="col col-3 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                          <label>Departure: </label> <h3>{this.state.props.origine}</h3>
+                          <label>Departure: </label> <h3>{item.origine}</h3>
                         </span>
                     </div>
                     <div className="col col-3 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                          <label>Destination: </label><h3> {this.state.props.destinazione}</h3>
+                          <label>Destination: </label><h3> {item.destinazione}</h3>
                         </span>
                     </div>
                     <div className="col col-2 tablet-col-11 mobile-col-1-2">
@@ -59,7 +67,7 @@ export default class TrainTicket extends Component {
                           <label>Status: </label><h3>Waiting for emission in blockchain</h3>
                         </span>
                     </div>   
-                     
+                </button>     
             </div>
         </li>
     );

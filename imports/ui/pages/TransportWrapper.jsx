@@ -3,10 +3,14 @@ import PropTypes from 'prop-types';
 import {Meteor} from 'meteor/meteor'
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 import Train from '../Train.jsx'
+import TrainTicket from '../TrainTicket.jsx'
 import TrackerReact from 'meteor/ultimatejs:tracker-react';
 import NumericInput from 'react-numeric-input';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
+import Select from 'react-select';
+import 'react-select/dist/react-select.css';
+import 'react-datepicker/dist/react-datepicker.css';
 
 // Ethereum libraries and contracts
 import web3, { selectContractInstance, mapReponseToJSON } from '../../api/ethereum/web3.js';
@@ -29,7 +33,26 @@ export default class TransportWrapper extends TrackerReact(Component) {
         startDate: moment(),
         origin: "from:",
         destination: "to: ",
-        Tickets: []
+        Tickets: [],
+        trainTypes: [
+                        {value: 'FR', label:'Le Frecce'},
+                        {value: 'RV', label:'Regional'}
+                    ],
+        classes:[
+                {value: '1', label: '1° Class'},
+                {value: '2', label: '2° Class'}
+        ],
+
+        ticketType:[
+                {value: 'single', label: "Simple Ticket"},
+                {value: 'carnet', label: "10 Tickets Carnet"},
+                {value: 'month', label: "Month Subscription"},
+                {value: 'week', label: "Week Subscription"}
+        ],
+
+        selectedTrain: {value: 'RV', label:'Regional'},
+        selectedClass:  {value: '2', label: '2° Class'},
+        selectedTicket: {value: 'single', label: "Simple Ticket"}          
     }
 
   }
@@ -160,24 +183,56 @@ export default class TransportWrapper extends TrackerReact(Component) {
   }
 
     async loadTickets(){
-        console.log("load Tickets");
+ 
         this.Transport = await selectContractInstance(transport_artifacts,Session.get("contract_address"));
-        const TicketItemsResp = await this.Transport.getTickets.call(this.state.account);
+        var numTicket = await this.Transport.numTickets.call(this.state.account);
+        console.log(numTicket);
+        numTicket = numTicket.valueOf();
+        console.log(numTicket);
+        if(numTicket > 0){
+        var TicketItemsResp = [];
+        var descriptions=[];
+        var expirationTimes=[];
+        var emissionTimes= [];
+        var status=[];
+        for( var i = 0; i < numTicket; i++){
+            
+            const TicketItemResp = await this.Transport.getTicket.call(this.state.account,i);
+            descriptions.push(TicketItemResp[0]);
+            expirationTimes.push(TicketItemResp[1]);
+            emissionTimes.push(TicketItemResp[2]);
+            status.push(TicketItemResp[3])
+        }
+        
         console.log(TicketItemsResp);
-        const TicketItems = mapReponseToJSON(TicketItemsResp,['description','requestedTimes','emissionTimes','emitted','valid'],"arrayOfObject");
-        console.log(TicketItems);
-        this.setState({Tickets: TicketItems});
+        TicketItemsResp.push(descriptions,expirationTimes,emissionTimes,status);
+        const TicketItems = mapReponseToJSON(TicketItemsResp,['description','expirationTime','emissionTime','status'],"arrayOfObject");
+        this.setState({Tickets: TicketItems});}
  }
   
+  logChangeTrain(val){
+      console.log(val);
+      this.setState({selectedTrain: val});
+  }
+
+  logChangeClass(val){
+      console.log(val);
+      this.setState({selectedClass: val});
+  }
+
+  logChangeTicket(val){
+      console.log(val);
+      this.setState({selectedTicket: val});
+  }
 
   render() {
 
-     var addr = this.getContractAddr();
+       var addr = this.getContractAddr();
         if(addr.length > 0){  
               
                Session.set("contract_address",addr[0].address);
                this.loadTickets();
-       }  
+       } 
      
     return (
          <div>
@@ -201,7 +256,7 @@ export default class TransportWrapper extends TrackerReact(Component) {
                           <label>Date: </label><DatePicker dateFormat="YYYY-MM-DD" selected={this.state.startDate} onChange = {this.handleDateChange.bind(this)}/>
                         </span>
                     </div>  
-                    <div className="col col-1 tablet-col-11 mobile-col-1-2">
+                    <div className="col col-1 tablet-col-11 mobtravelTimeile-col-1-2">
                         <span className="no-tablet no-mobile">
                           <label>Hour: </label><NumericInput ref="hour" className='form-control' min ={0} max = {23} value ={0}/> 
                         </span>
@@ -218,28 +273,22 @@ export default class TransportWrapper extends TrackerReact(Component) {
                     </div>  
 
             </div>
-                 <br/>
+                 <br/><br/>
              <div className="row clear">
                     
-                   {/*} <div className="col col-3 tablet-col-11 mobile-col-1-2">
+                   <div className="col col-3 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                           <label>Train type:</label><input type="text" name="train_type" value="All" /> 
+                           <label>Train type:</label><Select name="TrainType" value = {this.state.selectedTrain} options = {this.state.trainTypes} onChange = {this.logChangeTrain.bind(this)} /> 
                         </span>
                     </div>
                     <div className="col col-3 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                          <label>Service Level:</label><input type="text" name="train_type" value="All" />
+                          <label>Service Level:</label><Select name="class" value = {this.state.selectedClass} options = {this.state.classes} onChange = {this.logChangeClass.bind(this)} /> 
                         </span>
                     </div> 
                     <div className="col col-3 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                          <label>Ticket Type:</label><input type="text" name="train_type" value="All" />
-                        </span>
-                    </div>*/}
-
-                    <div className="col col-9 tablet-col-11 mobile-col-1-2">
-                        <span className="no-tablet no-mobile">
-                            <h3></h3>
+                          <label>Ticket Type:</label><Select name="ticketType" value = {this.state.selectedTicket} options = {this.state.ticketType} onChange = {this.logChangeTicket.bind(this)} /> 
                         </span>
                     </div>
                  
@@ -261,7 +310,7 @@ export default class TransportWrapper extends TrackerReact(Component) {
                     <h1>My Tickets</h1>
                     <ul className="dapp-account-list">
                    {this.state.Tickets.map((item,itemIndex) => {
-                       return <Ticket key={itemIndex} item = {item} index = {itemIndex}/>
+                       return <TrainTicket key={itemIndex} item = {item} index = {itemIndex}/>
                       })
                     }
                   

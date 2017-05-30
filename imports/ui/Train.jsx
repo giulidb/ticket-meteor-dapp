@@ -11,11 +11,19 @@ export default class Train extends Component {
         FlowRouter.go('/trains/'+ this.props.index);
     }
 
+    /* Fictitious price function because Trenitalia does not public API for this
+    TODO: move to serve side eventually  */
+    computePrice(travelTime){
+        var price = 0.12*(travelTime.getHours*60 + travelTime.getMinutes); // price in eur
+        return price;
+    }
+
   render() {
              var dP = new Date(Date.parse(this.props.train.orarioPartenza));
              var dA = new Date(Date.parse(this.props.train.orarioArrivo));
              var travelTime = new Date(Date.parse(this.props.train.orarioArrivo) - Date.parse(this.props.train.orarioPartenza));
-            
+             var price = this.computePrice(travelTime);
+
     return(
         <li>
           

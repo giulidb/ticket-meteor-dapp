@@ -24,7 +24,7 @@ contract Transport{
     // Struct represent a single Ticket 
     // initialized in configureTicket() by the owner
     struct Ticket{
-            bytes32 description;
+            string description;
             TicketTypes t;
             uint requestedTime;
             uint emissionTime;
@@ -33,8 +33,7 @@ contract Transport{
             uint numUsed;
             uint price;
             bytes32 ticketHash;
-            bool emitted;
-            bool valid;
+            bytes32 status;
     }
     
 
@@ -103,7 +102,7 @@ contract Transport{
 	
 	
     // Step1 - User make a deposit and request a Ticket	
-   function makeDeposit(bytes32 _description)
+   function makeDeposit(string _description)
                         costs(depositQuota,msg.sender)
                         public payable{
         // check if exists already a non solved request
@@ -114,6 +113,7 @@ contract Transport{
         Ticket ticket = TicketsOf[msg.sender][index];
         ticket.requestedTime = now;
         ticket.description = _description;
+        ticket.status = "requested";
         ticket.ticketHash = sha3(msg.sender,_description);
         balances[msg.sender] += depositQuota;
         DepositDone(msg.sender, depositQuota, ticket.ticketHash, now);
@@ -123,7 +123,7 @@ contract Transport{
 	// Step2 - After Step1 Owner can configure the ticket for a certain user
     // or invalidate it if user not has inserted the correct price
     function configureTicket(address addr,
-                             bytes32 _description,
+                             string _description,
                              TicketTypes _t,
                              uint index,
                              uint _expirationTime, 
@@ -145,8 +145,7 @@ contract Transport{
         ticket.maxUses = _maxUses;
         ticket.numUsed = 0;
         ticket.price = _price;
-        ticket.emitted = true;
-        ticket.valid = false;
+        ticket.status = "emitted";
         // log this event
         TicketConfigured(addr, index, sha3(addr,_description), now);
         
@@ -161,7 +160,7 @@ contract Transport{
             
             balances[owner] += TicketsOf[msg.sender][index].price;
             balances[msg.sender] = 0;
-            TicketsOf[msg.sender][index].valid = true;
+            TicketsOf[msg.sender][index].status = "valid";
             // log this event
             TicketPayed(msg.sender, TicketsOf[msg.sender][index].price, index, now);     
   		}
@@ -169,7 +168,7 @@ contract Transport{
 	function useTicket(uint index) onlyBefore(TicketsOf[msg.sender][index].expirationTime)
 	                               public returns (bool){
 	     //check if user has completed the purchased
-        if(!TicketsOf[msg.sender][index].valid)
+        if(TicketsOf[msg.sender][index].status == "valid")
             throw;
 	    Ticket ticket = TicketsOf[msg.sender][index];
 	    // enum type   
@@ -184,25 +183,20 @@ contract Transport{
 
      /// Function to get user ticket id eventually returns 0 if 
     /// user has not bought any tickets.
-    function getTickets(address user) public returns(bytes32[],uint[],uint[],bool[],bool[]){
-        uint length = TicketsOf[user].length;
-        bytes32[] memory descriptions = new bytes32[](length);
-        uint[] memory requestedTime = new uint[](length);
-        uint[] memory emissionTimes = new uint[](length);
-        bool[] memory emitted = new bool [](length);
-        bool[] memory valid = new bool [](length);
+    function numTickets(address user) public returns(uint){
+       return TicketsOf[user].length;
+    }
+    
+       /// Function to get user ticket id eventually returns 0 if 
+    /// user has not bought any tickets.
+    function getTicket(address user, uint i) public returns(bytes,uint,uint,bytes32){
 
-        for(uint i = 0; i < length; i++){
-            descriptions[i] = TicketsOf[user][i].description;
-            requestedTime[i] = TicketsOf[user][i].requestedTime;
-            emissionTimes[i] = TicketsOf[user][i].emissionTime;
-            emitted[i] = TicketsOf[user][i].emitted;
-            valid[i] = TicketsOf[user][i].valid;
+            bytes descriptions = bytes(TicketsOf[user][i].description);
+            uint requestedTime = TicketsOf[user][i].requestedTime;
+            uint emissionTimes = TicketsOf[user][i].emissionTime;
+            bytes32 status = TicketsOf[user][i].status;
 
-
-        }
-
-        return (descriptions,requestedTime,emissionTimes,emitted,valid);
+        return (descriptions,requestedTime,emissionTimes,status);
     }
 
 
@@ -212,7 +206,7 @@ contract Transport{
                                returns(bool){
         
         // check if the tickets has been emitted
-        if(TicketsOf[msg.sender][index].emitted)
+        if(TicketsOf[msg.sender][index].status == "emitted")
                 throw;
         
         uint amount = balances[msg.sender];
@@ -237,7 +231,7 @@ contract Transport{
                               onlyAfter(TicketsOf[addr][index].emissionTime + maxTime)
                               returns (bool)
         {   //check if user has completed the purchased
-            if(TicketsOf[addr][index].valid)
+            if(TicketsOf[addr][index].status == "valid")
                 throw;
        
                 uint amount = balances[addr];

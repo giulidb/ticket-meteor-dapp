@@ -48,6 +48,7 @@ export default class EventDetailed extends TrackerReact(Component){
 
     async getTickets(){
       const TicketItemsResp = await this.TicketsList.getTickets.call();
+      console.log(TicketItemsResp);
       const TicketItems = mapReponseToJSON(TicketItemsResp,['description','TicketPrices','ticketsLeft','TicketsNum'],"arrayOfObject");
       return TicketItems;
   }
