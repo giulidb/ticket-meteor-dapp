@@ -148,7 +148,7 @@ var maxTimestamp = 1800; //01/01/1970 @ 12:30am (UTC) added to current timestamp
 var depositQuota = web3.toWei(0.0032, 'ether');
 Transport.new("Trenitalia", depositQuota, maxTimestamp, { from: fromAddr, gasPrice: gasPrice, gas: gas }).then(function(instance4) {
     console.log(instance4.address + " Transport contract deployed");
-    // Meteor.call('contracts.insertRegister', "Transport");
+    Meteor.call('contracts.insertRegister', "Transport");
     Meteor.call('contracts.updateAddress', "Transport", instance4.address);
 
 }).catch(function(e) {

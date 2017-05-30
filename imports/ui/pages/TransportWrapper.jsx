@@ -28,7 +28,8 @@ export default class TransportWrapper extends TrackerReact(Component) {
         gas: 2500000,
         startDate: moment(),
         origin: "from:",
-        destination: "to: "
+        destination: "to: ",
+        Tickets: []
     }
 
   }
@@ -165,6 +166,7 @@ export default class TransportWrapper extends TrackerReact(Component) {
         console.log(TicketItemsResp);
         const TicketItems = mapReponseToJSON(TicketItemsResp,['description','requestedTimes','emissionTimes','emitted','valid'],"arrayOfObject");
         console.log(TicketItems);
+        this.setState({Tickets: TicketItems});
  }
   
 
@@ -257,7 +259,13 @@ export default class TransportWrapper extends TrackerReact(Component) {
 
                  <div>
                     <h1>My Tickets</h1>
-                    <button>See my tickets</button>
+                    <ul className="dapp-account-list">
+                   {this.state.Tickets.map((item,itemIndex) => {
+                       return <Ticket key={itemIndex} item = {item} index = {itemIndex}/>
+                      })
+                    }
+                  
+                   </ul> 
                 </div>
 
                 <br/><br/>

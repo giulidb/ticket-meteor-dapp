@@ -148,7 +148,7 @@ export default class TrainDetailed extends TrackerReact(Component){
                     </div>
                     <div className="col col-2 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                           <label>Deposit: </label><h3> {EthTools.formatBalance(this.state.deposit.valueOf().valueOf(), '0.00', 'eur')}€ / {EthTools.formatBalance(this.state.deposit.valueOf(), '0.000', 'ether')} ETH</h3>
+                           <label>Deposit: </label><h3> {EthTools.formatBalance(this.state.deposit.valueOf(), '0.00', 'eur')}€ / {EthTools.formatBalance(this.state.deposit.valueOf(), '0.000', 'ether')} ETH</h3>
                         </span>
                     </div>     
 

@@ -28,6 +28,39 @@ export default class TrainTicket extends Component {
         return (
                 
         <li>
+            <div className="row clear">
+                    <div className="col col-3 tablet-col-11 mobile-col-1-2">
+                        <span className="no-tablet no-mobile">
+                          <label>Departure: </label> <h3>{this.state.props.origine}</h3>
+                        </span>
+                    </div>
+                    <div className="col col-3 tablet-col-11 mobile-col-1-2">
+                        <span className="no-tablet no-mobile">
+                          <label>Destination: </label><h3> {this.state.props.destinazione}</h3>
+                        </span>
+                    </div>
+                    <div className="col col-2 tablet-col-11 mobile-col-1-2">
+                        <span className="no-tablet no-mobile">
+                          <label>Type: </label><h3> Regionale</h3><br/>Single Ticket
+                        </span>
+                    </div>  
+                    <div className="col col-1 tablet-col-11 mobile-col-1-2">
+                        <span className="no-tablet no-mobile">
+                           <label>Adults: </label><h3>1</h3>
+                        </span>
+                    </div>    
+                    <div className="col col-1 tablet-col-11 mobile-col-1-2">
+                        <span className="no-tablet no-mobile">
+                           <label>Children: </label><h3>0</h3>
+                        </span>
+                    </div>     
+                    <div className="col col-1 tablet-col-11 mobile-col-1-2">
+                        <span className="no-tablet no-mobile">
+                          <label>Status: </label><h3>Waiting for emission in blockchain</h3>
+                        </span>
+                    </div>   
+                     
+            </div>
         </li>
     );
 
