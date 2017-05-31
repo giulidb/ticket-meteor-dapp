@@ -52,7 +52,10 @@ export default class TransportWrapper extends TrackerReact(Component) {
 
         selectedTrain: {value: 'RV', label:'Regional'},
         selectedClass:  {value: '2', label: '2° Class'},
-        selectedTicket: {value: 'single', label: "Simple Ticket"}          
+        selectedTicket: {value: 'single', label: "Simple Ticket"},
+        children: '0',
+        adults: '1',
+        hour: '0'          
     }
 
   }
@@ -80,6 +83,18 @@ export default class TransportWrapper extends TrackerReact(Component) {
       });
   }
 
+  hourChange(){
+         this.setState({hour: this.refs.hour.state.value});
+  }
+
+  childrenChange(){
+         this.setState({children: this.refs.children.state.value});
+  }
+
+  adultsChange(){
+         this.setState({adults: this.refs.adults.state.value});
+  }
+
   handleData(){
       var destId = 6500;
       console.log(this.state.originId);
@@ -91,13 +106,28 @@ export default class TransportWrapper extends TrackerReact(Component) {
       return link;
 }
 
-   search(){
-     
-      var self = this;
-      var link = this.handleData();
-      console.log(link);
 
-      Meteor.call("RESTcall", link, (error, response)=>{
+   checkValue(){
+       if(this.state.originId == undefined || this.state.destId == undefined ){
+           return false;
+       }
+       return true;
+   }
+
+
+   search(){
+     console.log(this.state.originId);
+     console.log(this.state.destId);
+     if(!this.checkValue()){
+        Bert.alert('Please insert a valid origin and destination station','danger','fixed-top','fa-frown-o');
+        return;}
+    
+
+      if(this.state.selectedTicket.value == "single" ){
+        var self = this;
+        var link = this.handleData();
+        console.log(link);
+        Meteor.call("RESTcall", link, (error, response)=>{
           console.log("callback");
                  var trains = [];
                  console.log(response);
@@ -114,9 +144,21 @@ export default class TransportWrapper extends TrackerReact(Component) {
 
             console.log(trains);
             self.setState({results: trains});
-            console.log("fine callback");
-            
-      });
+            console.log("fine callback");       
+      });}
+
+      else{
+        var train={
+           "origine": this.state.origin,
+           "destinazione": this.state.destination,
+           "class": this.state.selectedClass.label,
+           "ticketType": this.state.selectedTicket.label,
+           "categoriaDescrizione":  this.state.selectedTrain.label,
+           "price": 5.50
+        }
+    
+        Session.set("trainTicket",train);
+        FlowRouter.go('/trains/'+ train.tickeType);}
    
   }
 
@@ -163,7 +205,9 @@ export default class TransportWrapper extends TrackerReact(Component) {
                  </div>
                  </li>
                        {this.state.results.map((train,trainIndex) => {
-                          return <Train key={trainIndex} train = {train} index = {trainIndex}/>
+                  
+                          return <Train key={trainIndex} train = {train} index = {trainIndex} ticketType = {this.state.selectedTicket.label} trainType = {this.state.selectedTrain.label} service = {this.state.selectedClass.label} numAdults =  {this.state.adults} children = {this.state.children}
+                                />
                       })
                     }
                    <hr/> 
@@ -186,27 +230,25 @@ export default class TransportWrapper extends TrackerReact(Component) {
  
         this.Transport = await selectContractInstance(transport_artifacts,Session.get("contract_address"));
         var numTicket = await this.Transport.numTickets.call(this.state.account);
-        console.log(numTicket);
         numTicket = numTicket.valueOf();
-        console.log(numTicket);
         if(numTicket > 0){
         var TicketItemsResp = [];
         var descriptions=[];
-        var expirationTimes=[];
+        var requestedTime=[];
         var emissionTimes= [];
         var status=[];
         for( var i = 0; i < numTicket; i++){
             
             const TicketItemResp = await this.Transport.getTicket.call(this.state.account,i);
             descriptions.push(TicketItemResp[0]);
-            expirationTimes.push(TicketItemResp[1]);
+            requestedTime.push(TicketItemResp[1]);
             emissionTimes.push(TicketItemResp[2]);
             status.push(TicketItemResp[3])
         }
         
-        console.log(TicketItemsResp);
-        TicketItemsResp.push(descriptions,expirationTimes,emissionTimes,status);
-        const TicketItems = mapReponseToJSON(TicketItemsResp,['description','expirationTime','emissionTime','status'],"arrayOfObject");
+    //    console.log(TicketItemsResp);
+        TicketItemsResp.push(descriptions,requestedTime,emissionTimes,status);
+        const TicketItems = mapReponseToJSON(TicketItemsResp,['description','requestedTime','emissionTime','status'],"arrayOfObject");
         this.setState({Tickets: TicketItems});}
  }
   
@@ -225,15 +267,71 @@ export default class TransportWrapper extends TrackerReact(Component) {
       this.setState({selectedTicket: val});
   }
 
+  renderMyTickets(){
+         
+
+         if(this.state.Tickets.length == 0){
+             return (
+                    <div>
+                        <h1>My Tickets</h1>
+                        <p>Yuo haven't not tickets yet.</p>
+                        <br/><br/>
+                        <hr/> 
+                    </div>); 
+         }
+        
+            return(
+                    <div>
+                      <h1>My Tickets</h1>
+                      <ul className="dapp-account-list">
+                         <li>
+                           <div className="row clear">
+                                <div className="col col-2 tablet-col-11 mobile-col-1-2">
+                                    <span className="no-tablet no-mobile">
+                                    <h3>Departure</h3> 
+                                    </span>
+                                </div>
+                                <div className="col col-2 tablet-col-11 mobile-col-1-2">
+                                    <span className="no-tablet no-mobile">
+                                    <h3>Arrival</h3>
+                                    </span>
+                                </div>
+                                <div className="col col-2 tablet-col-11 mobile-col-1-2">
+                                    <span className="no-tablet no-mobile">
+                                    <h3>Train Type</h3> 
+                                    </span>
+                                </div>  
+                                <div className="col col-2 tablet-col-11 mobile-col-1-2">
+                                    <span className="no-tablet no-mobile">
+                                    <h3>Ticket Type</h3> 
+                                    </span>
+                                </div>
+                                <div className="col col-2 tablet-col-11 mobile-col-1-2">
+                                    <span className="no-tablet no-mobile">
+                                    <h3>Status</h3> 
+                                    </span>
+                                </div>
+                            </div>
+                        </li>
+                            {this.state.Tickets.map((item,itemIndex) => {
+                                return <TrainTicket key={itemIndex} item = {item} index = {itemIndex}/>
+                                })
+                            }
+                     </ul>
+                </div> 
+            );
+
+  }
+
   render() {
 
-       var addr = this.getContractAddr();
+     /*  var addr = this.getContractAddr();
         if(addr.length > 0){  
               
                Session.set("contract_address",addr[0].address);
                this.loadTickets();
        } 
-     
+     */
     return (
          <div>
 
@@ -258,17 +356,17 @@ export default class TransportWrapper extends TrackerReact(Component) {
                     </div>  
                     <div className="col col-1 tablet-col-11 mobtravelTimeile-col-1-2">
                         <span className="no-tablet no-mobile">
-                          <label>Hour: </label><NumericInput ref="hour" className='form-control' min ={0} max = {23} value ={0}/> 
+                          <label>Hour: </label><NumericInput ref="hour" className='form-control' min ={0} max = {23} value ={this.state.hour} onChange = {this.hourChange.bind(this)}/> 
                         </span>
                     </div>
                     <div className="col col-1 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                           <label>Adults: </label><NumericInput className='form-control' min ={0} max = {4} value ={1}/>
+                           <label>Adults: </label><NumericInput className='form-control' ref="adults" min ={1} max = {4} value ={this.state.adults} onChange = {this.adultsChange.bind(this)}/>
                         </span>
                     </div>    
                     <div className="col col-1 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                           <label>Children: </label><NumericInput className='form-control' min ={0} max = {4} value ={0}/>
+                           <label>Children: </label><NumericInput className='form-control' ref="children" min ={0} max = {4} value ={this.state.children} onChange = {this.childrenChange.bind(this)}/>
                         </span>
                     </div>  
 
@@ -307,18 +405,8 @@ export default class TransportWrapper extends TrackerReact(Component) {
                     <br/>
 
                  <div>
-                    <h1>My Tickets</h1>
-                    <ul className="dapp-account-list">
-                   {this.state.Tickets.map((item,itemIndex) => {
-                       return <TrainTicket key={itemIndex} item = {item} index = {itemIndex}/>
-                      })
-                    }
-                  
-                   </ul> 
-                </div>
-
-                <br/><br/>
-                <hr/>             
+                        {this.renderMyTickets()}
+                </div>            
            
          </div>
 

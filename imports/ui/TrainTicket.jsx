@@ -23,52 +23,60 @@ export default class TrainTicket extends Component {
   }
 
    seeTicket(){
-        Session.set("trainTicket",this.props.item);
+       
+        Session.set("trainTicket", JSON.parse(this.props.item.description));
         FlowRouter.go('/trains/'+ this.props.index);
     }
 
     render() {
 
-        console.log(this.props.item.description);
+        //console.log(this.props.item.description);
         var item = JSON.parse(this.props.item.description);
+        var status;
+        switch(this.props.item.status){
+            case "requested":
+                    status = "Waiting for emission in blockchain"
+                    break;
+            case "emitted":        
+                    status = "Ticket emitted, you can buy it"
+                    break;
+            case "valid":
+                    status = "Ticket valid, you can use it"        
+        }
 
         return (
                 
         <li>
             <div className="row clear">
                 <button  onClick={this.seeTicket.bind(this)}> 
-                    <div className="col col-3 tablet-col-11 mobile-col-1-2">
+                    <div className="col col-2 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                          <label>Departure: </label> <h3>{item.origine}</h3>
-                        </span>
-                    </div>
-                    <div className="col col-3 tablet-col-11 mobile-col-1-2">
-                        <span className="no-tablet no-mobile">
-                          <label>Destination: </label><h3> {item.destinazione}</h3>
+                          <span>{item.origine}</span>
                         </span>
                     </div>
                     <div className="col col-2 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                          <label>Type: </label><h3> Regionale</h3><br/>Single Ticket
+                          <span> {item.destinazione}</span>
+                        </span>
+                    </div>
+                    <div className="col col-2 tablet-col-11 mobile-col-1-2">
+                        <span className="no-tablet no-mobile">
+                          <span> {item.categoriaDescrizione}</span>
                         </span>
                     </div>  
-                    <div className="col col-1 tablet-col-11 mobile-col-1-2">
+                    <div className="col col-2 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                           <label>Adults: </label><h3>1</h3>
-                        </span>
-                    </div>    
-                    <div className="col col-1 tablet-col-11 mobile-col-1-2">
-                        <span className="no-tablet no-mobile">
-                           <label>Children: </label><h3>0</h3>
+                           <span>Single Ticket</span>
                         </span>
                     </div>     
-                    <div className="col col-1 tablet-col-11 mobile-col-1-2">
+                    <div className="col col-4 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                          <label>Status: </label><h3>Waiting for emission in blockchain</h3>
+                          <span>{status}</span>
                         </span>
                     </div>   
                 </button>     
             </div>
+            <hr/>
         </li>
     );
 

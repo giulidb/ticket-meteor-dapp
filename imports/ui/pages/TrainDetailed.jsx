@@ -29,7 +29,7 @@ export default class TrainDetailed extends TrackerReact(Component){
   }
 
   componentWillMount(){
-            this.setState({Train: Session.get("train")});
+            this.setState({Train: Session.get("trainTicket")});
             console.log(this.state.Train);
 
   }
@@ -59,37 +59,14 @@ export default class TrainDetailed extends TrackerReact(Component){
     return transport.find({}).fetch();
   }
 
+  renderTicket(){
 
-    render(){
-
-        var addr = this.getContractAddr();
-        if(addr.length > 0){  
-              
-               Session.set("contract_address",addr[0].address);
-               this.loadContract();
-       }
-      
-         if(!this.state.Train){
-              return <div>No Pending orders</div>
-            }
-        
         var dP = new Date(Date.parse(this.state.Train.orarioPartenza));
         var dA = new Date(Date.parse(this.state.Train.orarioArrivo));
-        var travelTime = new Date(Date.parse(this.state.Train.orarioArrivo) - Date.parse(this.state.Train.orarioPartenza));
+        return( 
 
-     
-      
-              
-        return(
-             <ReactCSSTransitionGroup
-                  component="div"
-                  transitionName="route"
-                  transitionEnterTimeout={500}
-                  transitionLeaveTimeout={300}
-                  transitionAppear={true}
-                  transitionAppearTimeout={500}>
-                
-                  <h1>Order Summary</h1>
+            <div> 
+                <h1>Ticket Summary</h1>
 
                   <div className="row clear">
                     <div className="col col-3 tablet-col-11 mobile-col-1-2">
@@ -122,10 +99,11 @@ export default class TrainDetailed extends TrackerReact(Component){
                            <label>Children: </label><h3>0</h3>
                         </span>
                     </div>  
-
-            </div>
-      <br/><br/><br/>
-          <div className="row clear">
+                </div>
+          
+                <br/><br/><br/>
+          
+                <div className="row clear">
                     <div className="col col-1 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
                           <label>Type: </label> <h3>{this.state.Train.categoriaDescrizione}</h3>
@@ -133,17 +111,17 @@ export default class TrainDetailed extends TrackerReact(Component){
                     </div>
                     <div className="col col-2 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                          <label>Service Level: </label><h3>2° Class</h3>
+                          <label>Service Level: </label><h3>{this.state.Train.class}</h3>
                         </span>
                     </div>
                     <div className="col col-3 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                          <label>Ticket Type: </label><h3>Single Ticket</h3>
+                          <label>Ticket Type: </label><h3>{this.state.Train.ticketType}</h3>
                         </span>
                     </div>  
                     <div className="col col-2 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                           <label>Total Price: </label><h3>5.50€ / 5.50 ETH</h3>
+                           <label>Total Price: </label><h3>{this.state.Train.price}</h3>
                         </span>
                     </div>
                     <div className="col col-2 tablet-col-11 mobile-col-1-2">
@@ -153,8 +131,42 @@ export default class TrainDetailed extends TrackerReact(Component){
                     </div>     
 
               </div>
-                <br/><br/><br/>
-                <hr/>
+      </div> );
+    
+    
+
+  }
+
+
+    render(){
+
+        var addr = this.getContractAddr();
+        if(addr.length > 0){  
+              
+               Session.set("contract_address",addr[0].address);
+               this.loadContract();
+       }
+      
+         if(!this.state.Train){
+              return <div>No Pending orders</div>
+            }
+        
+           
+      
+              
+        return(
+             <ReactCSSTransitionGroup
+                  component="div"
+                  transitionName="route"
+                  transitionEnterTimeout={500}
+                  transitionLeaveTimeout={300}
+                  transitionAppear={true}
+                  transitionAppearTimeout={500}>
+                
+                 {this.renderTicket()}
+               
+            <br/><br/><br/>
+            <hr/>
               
               <div className="row clear">
                     <div className="col col-6 tablet-col-11 mobile-col-1-2">
@@ -163,6 +175,8 @@ export default class TrainDetailed extends TrackerReact(Component){
                         <input type="submit" value= "Buy" disabled = {true} />
                             <br/>
                         <input type="submit" value= "Refund" disabled = {true} />
+                             <br/>
+                        <input type="submit" value= "Use" disabled = {true} />
                    </div> 
                         
                     <div className="col col-5 tablet-col-11 mobile-col-1-2">
