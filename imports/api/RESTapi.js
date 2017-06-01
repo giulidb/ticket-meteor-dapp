@@ -16,24 +16,27 @@ Meteor.methods({
 
 
     /* Fictitious price function because Trenitalia does not have public API for prices */
-    'REST.computePrice': function(orarioArrivo, orarioPartenza, service, train, adults, children, type) {
-        console.log("orario 1: " + orarioArrivo);
-        console.log("orario 2: " + orarioPartenza);
-        var duration = new Date(Date.parse(orarioArrivo - orarioPartenza));
-        var price = 0.12 * (duration.getHours() * 60 + duration.getMinutes());
+    'REST.computePrice': function(duration, service, train, adults, children, type) {
+        var hours = parseInt(duration.split(':')[0]);
+        var minutes = parseInt(duration.split(':')[1]);
+        console.log(hours*60);
+        console.log(minutes);
+        var price = 0.10*(hours * 60 + minutes);
         console.log("intial price: " + price);
-        if (train != "REG")
-            price *= 2;
+        if (train != "REG" && train != "RV")
+            price *= 4;
         switch (type) {
             case "10 Tickets Carnet":
                 price *= 6.50;
                 break;
             case "Month Subscription":
-                price *= 7.27;
+                price *= 7.20;
                 break;
             case "Week Subscription":
                 price *= 4.50;
                 break;
+            default:
+                price = price; 
 
         }
 

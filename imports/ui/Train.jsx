@@ -13,54 +13,87 @@ export default class Train extends Component {
             price: '',
             dP:'',
             dA:'',
-            travelTime:''
+            travelTime:'',
+            hA:'',
+            hP:''
         }
     }
 
     setTrain(){
+        this.props.train.price = this.state.price;
+        this.props.train.class = this.props.service;
+        this.props.train.ticketType = this.props.ticketType;
+        this.props.train.adults = this.props.numAdults;
+        this.props.train.children = this.props.children;
+        this.props.train.expirationDate = this.computeExipirationDate();
+        console.log(this.props.train);
         Session.set("trainTicket",this.props.train);
         FlowRouter.go('/trains/'+ this.props.index);
     }
 
     componentWillMount(){
-         console.log("componentWillmount");
          this.setState({dP: new Date(Date.parse(this.props.train.orarioPartenza))});
          this.setState({dA: new Date(Date.parse(this.props.train.orarioArrivo))});
-         this.setState({travelTime: new Date(Date.parse(this.props.train.orarioArrivo - this.props.train.orarioPartenza))});
-         Meteor.call("REST.computePrice", this.props.train.orarioArrivo,this.props.train.orarioPartenza, this.props.service, this.props.trainType,
+         if(this.props.train.ticketType == 'Simple Ticket'){
+                this.setState({hP: ("0" + (this.state.dP.getHours() + 1)).slice(-2) +':' +("0" + (this.state.dP.getMinutes() + 1)).slice(-2)});
+                this.setState({hA: ("0" + (this.state.dA.getHours() + 1)).slice(-2) +':' +("0" + (this.state.dA.getMinutes() + 1)).slice(-2)});
+            }
+         Meteor.call("REST.computePrice", this.props.train.durata, this.props.service, this.props.trainType,
                      this.props.children, this.props.numAdults, this.props.ticketType, (error, response)=>{
             this.setState({price: response});
-            console.log(response);
       });
+    }
+    
+    computeExipirationDate(){
+        var expirationDate;
+        switch(this.props.train.ticketType){
+            case "Simple Ticket":            
+                expirationDate = new Date(this.state.dP.getFullYear(),this.state.dP.getMonth(),this.state.dP.getDate());
+                break;
+        case "Month Subscription": 
+                expirationDate = new Date(this.state.dP.getFullYear(),this.state.dP.getMonth()+1,1);
+                expirationDate.setDate(expirationDate.getDate() - 1);
+                break;
+        case "Week Subscription":
+                expirationDate = new Date(this.state.dP.getFullYear(),this.state.dP.getMonth(),this.state.dP.getDate());
+                expirationDate.setDate(this.state.dP.getDate() + 7);
+                break;
+        case "10 Tickets Carnet":
+                expirationDate = new Date(this.state.dP.getFullYear(),this.state.dP.getMonth(),this.state.dP.getDate());
+                expirationDate.setDate(this.state.dP.getDate() + 180);
+                break;      
+        
+        }
+        console.log(expirationDate);
+        return expirationDate.toString();
     }
 
 
   render() {
-      console.log("Train render");
 
     return(
         <li>
-          
+            <hr/>   
                 <div className="row clear">
                 <button  onClick={this.setTrain.bind(this)}> 
                        
                     <div className="col col-2 tablet-col-2 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                                    <h3>{("0" + (this.state.dP.getHours() + 1)).slice(-2)} : {("0" + (this.state.dP.getMinutes() + 1)).slice(-2)}</h3>
-                                    <span>{this.props.train.origine}</span>
+                                    <h3>{this.props.train.origine}</h3>
+                                    <span>{this.state.hP}</span>
                         </span>
                     </div>
 
                      <div className="col col-2 tablet-col-2 mobile-full">
                         <span className="no-tablet no-mobile">
-                                <h3>{("0" + (this.state.dA.getHours() + 1)).slice(-2)} : {("0" + (this.state.dA.getMinutes() + 1)).slice(-2)}</h3>
-                                <span>{this.props.train.destinazione}</span>
+                                <h3>{this.props.train.destinazione}</h3>
+                                <span>{this.state.hA}</span>
                         </span>
                     </div>
 
                     <div className="col col-2 tablet-col-2 mobile-full">
                         <span className="no-tablet no-mobile">
-                                <span>{("0" + (this.state.travelTime.getHours() + 1)).slice(-2)} : {("0" + (this.state.travelTime.getMinutes() + 1)).slice(-2)}</span>
+                                <span>{this.props.train.durata}</span>
 
                         </span>
                     </div>
@@ -80,7 +113,6 @@ export default class Train extends Component {
                     </div> 
             </button>
            </div>
-           <hr/>
         </li>            
     );
 

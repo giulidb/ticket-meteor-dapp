@@ -25,23 +25,57 @@ export default class TrainDetailed extends TrackerReact(Component){
             gas: 2500000,
             Train: "",
             deposit: "",
+            adults:"",
+            children:"",
+            dP: "",
+            dA:"",
+            date: "",
+            expiration:""
     }
+  }
+
+   getContractAddr(){
+        return transport.find({}).fetch();
   }
 
   componentWillMount(){
             this.setState({Train: Session.get("trainTicket")});
-            console.log(this.state.Train);
+            this.setState({expiration: new Date(Date.parse(this.state.Train.expirationDate))});
+            console.log("Component will Mount");
+            console.log(this.state.Train.expirationDate);
+            console.log(this.state.expiration);
 
-  }
+
+            
+}
+
+componentDidMount(){
+    this.setState({adults: "Adults: " + this.state.Train.adults});
+            if(this.state.Train.children >0 )
+                this.setState({adults: "Children: " + this.state.Train.children});
+    console.log(this.state.Train.ticketType);  
+    var dP = new Date(Date.parse(this.state.Train.orarioPartenza));
+    var dA = new Date(Date.parse(this.state.Train.orarioArrivo));  
+    if(this.state.Train.ticketType == "Simple Ticket"){            
+            this.setState({dP: ("0" + (dP.getHours() + 1)).slice(-2) + ":" + ("0" + (dP.getMinutes() + 1)).slice(-2)});
+            this.setState({dA: ("0" + (dP.getHours() + 1)).slice(-2) + ":" + ("0" + (dA.getMinutes() + 1)).slice(-2)});    
+    }
+    this.loadContract();
+    
+}
 
   async loadContract(){
-        this.Transport = await selectContractInstance(transport_artifacts,Session.get("contract_address"));
+        var addr = this.getContractAddr();
+        console.log(addr);
+        this.Transport = await selectContractInstance(transport_artifacts,addr[0].address);
         const depositQuota = await this.Transport.depositQuota.call();
         this.setState({deposit: depositQuota});
   }
 
   async makeDeposit(addr) {
-    this.Transport = await selectContractInstance(transport_artifacts,Session.get("contract_address"));
+    var addr = this.getContractAddr();
+    console.log(addr);
+    this.Transport = await selectContractInstance(transport_artifacts,addr[0].address);
     const res = await  this.Transport.makeDeposit(JSON.stringify(this.state.Train),
                                             {from: this.state.account, gasPrice: this.state.gasPrice,
                                              gas: this.state.gas, value: this.state.deposit.valueOf()});
@@ -61,8 +95,7 @@ export default class TrainDetailed extends TrackerReact(Component){
 
   renderTicket(){
 
-        var dP = new Date(Date.parse(this.state.Train.orarioPartenza));
-        var dA = new Date(Date.parse(this.state.Train.orarioArrivo));
+  
         return( 
 
             <div> 
@@ -72,36 +105,30 @@ export default class TrainDetailed extends TrackerReact(Component){
                     <div className="col col-3 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
                           <label>Departure: </label> <h3>{this.state.Train.origine}</h3>
+                          <p>{this.state.dP}</p>
                         </span>
                     </div>
                     <div className="col col-3 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
                           <label>Destination: </label><h3> {this.state.Train.destinazione}</h3>
+                          <p>{this.state.dA}</p>
                         </span>
                     </div>
                     <div className="col col-2 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                          <label>Date: </label><h3>{("0" + (dP.getDay() + 1)).slice(-2)} / {("0" + (dP.getMonth() + 1)).slice(-2)} / {dP.getFullYear()} </h3>
+                          <label>Expiration: </label><h3>{("0" + (this.state.expiration.getDate())).slice(-2) + "/" + ("0" + (this.state.expiration.getMonth() + 1)).slice(-2) + "/" + this.state.expiration.getFullYear()} </h3>
                         </span>
-                    </div>  
-                    <div className="col col-1 tablet-col-11 mobile-col-1-2">
+                    </div> 
+                    <div className="col col-2 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                          <label>Hour: </label><h3>{("0" + (dA.getHours() + 1)).slice(-2)} : {("0" + (dA.getMinutes() + 1)).slice(-2)}</h3>
-                        </span>
-                    </div>
-                    <div className="col col-1 tablet-col-11 mobile-col-1-2">
-                        <span className="no-tablet no-mobile">
-                           <label>Adults: </label><h3>1</h3>
-                        </span>
-                    </div>    
-                    <div className="col col-1 tablet-col-11 mobile-col-1-2">
-                        <span className="no-tablet no-mobile">
-                           <label>Children: </label><h3>0</h3>
+                           <label>Passengers: </label>
+                                 <h3>{this.state.adults}</h3>
+                                 <p>{this.state.children}</p>
                         </span>
                     </div>  
                 </div>
           
-                <br/><br/><br/>
+                <br/><br/><br/><br/>
           
                 <div className="row clear">
                     <div className="col col-1 tablet-col-11 mobile-col-1-2">
@@ -121,7 +148,7 @@ export default class TrainDetailed extends TrackerReact(Component){
                     </div>  
                     <div className="col col-2 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                           <label>Total Price: </label><h3>{this.state.Train.price}</h3>
+                           <label>Total Price: </label><h3>{this.state.Train.price} € / {EthTools.formatBalance(EthTools.toWei(this.state.Train.price,'eur'),'0.00','ether')} ETH</h3>
                         </span>
                     </div>
                     <div className="col col-2 tablet-col-11 mobile-col-1-2">
@@ -139,19 +166,12 @@ export default class TrainDetailed extends TrackerReact(Component){
 
 
     render(){
-
-        var addr = this.getContractAddr();
-        if(addr.length > 0){  
-              
-               Session.set("contract_address",addr[0].address);
-               this.loadContract();
-       }
       
          if(!this.state.Train){
               return <div>No Pending orders</div>
             }
-        
-           
+        console.log("Train Detailed");
+        console.log(this.state.Train);   
       
               
         return(

@@ -55,7 +55,9 @@ export default class TransportWrapper extends TrackerReact(Component) {
         selectedTicket: {value: 'single', label: "Simple Ticket"},
         children: '0',
         adults: '1',
-        hour: '0'          
+        hour: '0' ,
+        seeTicket: 'false',
+        buttonName: 'See Tickets'        
     }
 
   }
@@ -101,7 +103,7 @@ export default class TransportWrapper extends TrackerReact(Component) {
       console.log(this.state.destId);
 
       var d =  new Date(this.state.startDate);
-      var date = d.getFullYear() + '-' + ("0" + (d.getMonth() + 1)).slice(-2) + '-' + ("0" + (d.getDay() + 1)).slice(-2) + 'T' + ("0" + (this.refs.hour.state.value + 1)).slice(-2)+':00:00'
+      var date = d.getFullYear() + '-' + ("0" + (d.getMonth() + 1)).slice(-2) + '-' + ("0" + (d.getDate())).slice(-2) + 'T' + ("0" + (this.refs.hour.state.value + 1)).slice(-2)+':00:00'
       var link = 'http://www.viaggiatreno.it/viaggiatrenonew/resteasy/viaggiatreno/soluzioniViaggioNew/' + this.state.originId.replace(/(?:\r\n|\r|\n)/g, '') + '/' + destId + '/' + date;
       return link;
 }
@@ -116,49 +118,48 @@ export default class TransportWrapper extends TrackerReact(Component) {
 
 
    search(){
-     console.log(this.state.originId);
-     console.log(this.state.destId);
+
+     //check if user inserted valid stations name
      if(!this.checkValue()){
         Bert.alert('Please insert a valid origin and destination station','danger','fixed-top','fa-frown-o');
         return;}
     
-
-      if(this.state.selectedTicket.value == "single" ){
         var self = this;
         var link = this.handleData();
         console.log(link);
         Meteor.call("RESTcall", link, (error, response)=>{
           console.log("callback");
                  var trains = [];
-                 console.log(response);
                  var res = JSON.parse(response.content)
-                 console.log(res);
                  var solutions = res.soluzioni;
-                 console.log(solutions);
                  for(var i = 0; i < solutions.length; i++){
                     var vehicles = solutions[i].vehicles;
                         for(var j = 0; j < vehicles.length; j++){
-                            trains.push(vehicles[j]);
+                            //add travel time
+                            vehicles[j].durata = solutions[i].durata;
+                            // filter train type
+                            console.log(self.state.selectedTrain.value);
+                            if(vehicles[j].categoriaDescrizione == 'REG' || vehicles[j].categoriaDescrizione == 'RV' ){
+                                   if(self.state.selectedTrain.value == 'RV') 
+                                        trains.push(vehicles[j]);
+                            }
+                            else{
+                                if(self.state.selectedTrain.value != 'RV')
+                                        trains.push(vehicles[j]);
+                            }
+
+                            if(self.state.selectedTicket.value != "single" && trains.length > 0){
+                                        self.setState({results: trains});
+                                        return;
+                            }
+                                
                         }
             }
 
             console.log(trains);
             self.setState({results: trains});
             console.log("fine callback");       
-      });}
-
-      else{
-        var train={
-           "origine": this.state.origin,
-           "destinazione": this.state.destination,
-           "class": this.state.selectedClass.label,
-           "ticketType": this.state.selectedTicket.label,
-           "categoriaDescrizione":  this.state.selectedTrain.label,
-           "price": 5.50
-        }
-    
-        Session.set("trainTicket",train);
-        FlowRouter.go('/trains/'+ train.tickeType);}
+      });
    
   }
 
@@ -226,8 +227,20 @@ export default class TransportWrapper extends TrackerReact(Component) {
         return transport.find({}).fetch();
   }
 
+    seeTickets(){
+        console.log("seeTickets");
+        this.setState({seeTicket: !this.state.seeTicket});
+        this.setState({buttonName: (this.state.seeTicket ? "Hide Tickets" : "See Tickets")});
+        this.loadTickets();
+    }
+
     async loadTickets(){
- 
+
+        var addr = this.getContractAddr();
+        if(addr.length > 0)  
+               Session.set("contract_address",addr[0].address); 
+        else
+            return;       
         this.Transport = await selectContractInstance(transport_artifacts,Session.get("contract_address"));
         var numTicket = await this.Transport.numTickets.call(this.state.account);
         numTicket = numTicket.valueOf();
@@ -269,12 +282,13 @@ export default class TransportWrapper extends TrackerReact(Component) {
 
   renderMyTickets(){
          
+        if(this.state.seeTicket)
+            return;
 
          if(this.state.Tickets.length == 0){
              return (
                     <div>
-                        <h1>My Tickets</h1>
-                        <p>Yuo haven't not tickets yet.</p>
+                        <p>You haven't tickets yet.</p>
                         <br/><br/>
                         <hr/> 
                     </div>); 
@@ -282,7 +296,6 @@ export default class TransportWrapper extends TrackerReact(Component) {
         
             return(
                     <div>
-                      <h1>My Tickets</h1>
                       <ul className="dapp-account-list">
                          <li>
                            <div className="row clear">
@@ -325,13 +338,6 @@ export default class TransportWrapper extends TrackerReact(Component) {
 
   render() {
 
-     /*  var addr = this.getContractAddr();
-        if(addr.length > 0){  
-              
-               Session.set("contract_address",addr[0].address);
-               this.loadTickets();
-       } 
-     */
     return (
          <div>
 
@@ -405,6 +411,8 @@ export default class TransportWrapper extends TrackerReact(Component) {
                     <br/>
 
                  <div>
+                         <h1>My Tickets</h1>
+                         <button onClick={this.seeTickets.bind(this)}>{this.state.buttonName}</button>
                         {this.renderMyTickets()}
                 </div>            
            
