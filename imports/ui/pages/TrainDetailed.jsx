@@ -30,7 +30,11 @@ export default class TrainDetailed extends TrackerReact(Component){
             dP: "",
             dA:"",
             date: "",
-            expiration:""
+            expiration: "",
+            status: {
+                value: "",
+                label: ""
+            }
     }
   }
 
@@ -39,42 +43,65 @@ export default class TrainDetailed extends TrackerReact(Component){
   }
 
   componentWillMount(){
-            this.setState({Train: Session.get("trainTicket")});
-            this.setState({expiration: new Date(Date.parse(this.state.Train.expirationDate))});
-            console.log("Component will Mount");
-            console.log(this.state.Train.expirationDate);
-            console.log(this.state.expiration);
-
-
-            
+            this.setState({Train: Session.get("trainTicket")});     
 }
 
 componentDidMount(){
     this.setState({adults: "Adults: " + this.state.Train.adults});
             if(this.state.Train.children >0 )
                 this.setState({adults: "Children: " + this.state.Train.children});
-    console.log(this.state.Train.ticketType);  
     var dP = new Date(Date.parse(this.state.Train.orarioPartenza));
     var dA = new Date(Date.parse(this.state.Train.orarioArrivo));  
     if(this.state.Train.ticketType == "Simple Ticket"){            
             this.setState({dP: ("0" + (dP.getHours() + 1)).slice(-2) + ":" + ("0" + (dP.getMinutes() + 1)).slice(-2)});
             this.setState({dA: ("0" + (dP.getHours() + 1)).slice(-2) + ":" + ("0" + (dA.getMinutes() + 1)).slice(-2)});    
     }
-    this.loadContract();
+     var exp = new Date(this.state.Train.expirationDate*1000);
+ 
+     this.setState({expiration: ("0" + (exp.getDate())).slice(-2) + "/" + ("0" + (exp.getMonth() + 1)).slice(-2) + "/" + exp.getFullYear()});   
+     this.loadContract();
     
+
 }
 
   async loadContract(){
         var addr = this.getContractAddr();
-        console.log(addr);
         this.Transport = await selectContractInstance(transport_artifacts,addr[0].address);
         const depositQuota = await this.Transport.depositQuota.call();
         this.setState({deposit: depositQuota});
+        var tempStatus = { value: "", label: ""};
+        if(Session.get("ReqPage") == "Blockchain"){
+                const TicketItemResp = await this.Transport.getTicket.call(this.state.account,Session.get("Index"));
+                console.log(TicketItemResp);
+                console.log( web3.toUtf8(TicketItemResp[3]).trim())
+                var status = web3.toUtf8(TicketItemResp[3]).trim();
+                switch(status){
+                    case "requested":
+                            tempStatus.value = "requested";
+                            tempStatus.label = "Waiting for emission in blockchain";
+                            break;
+                    case "emitted":        
+                            tempStatus.value = "emitted";
+                            tempStatus.label = "Ticket emitted, you can buy it";
+                            break;
+                    case "valid":
+                            tempStatus.value = "valid";
+                            tempStatus.label = "Ticket valid, you can use it";
+                  }
+
+        }
+        else{
+            tempStatus.value = "notrequested";
+            tempStatus.label ="Not requested yet, make deposit for asking emission";
+        }
+
+            this.setState({status: tempStatus});
+            console.log(this.state.status);
+
   }
 
   async makeDeposit(addr) {
     var addr = this.getContractAddr();
-    console.log(addr);
     this.Transport = await selectContractInstance(transport_artifacts,addr[0].address);
     const res = await  this.Transport.makeDeposit(JSON.stringify(this.state.Train),
                                             {from: this.state.account, gasPrice: this.state.gasPrice,
@@ -116,7 +143,7 @@ componentDidMount(){
                     </div>
                     <div className="col col-2 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                          <label>Expiration: </label><h3>{("0" + (this.state.expiration.getDate())).slice(-2) + "/" + ("0" + (this.state.expiration.getMonth() + 1)).slice(-2) + "/" + this.state.expiration.getFullYear()} </h3>
+                          <label>Expiration: </label><h3>{this.state.expiration}</h3>
                         </span>
                     </div> 
                     <div className="col col-2 tablet-col-11 mobile-col-1-2">
@@ -148,7 +175,7 @@ componentDidMount(){
                     </div>  
                     <div className="col col-2 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                           <label>Total Price: </label><h3>{this.state.Train.price} € / {EthTools.formatBalance(EthTools.toWei(this.state.Train.price,'eur'),'0.00','ether')} ETH</h3>
+                           <label>Total Price: </label><h3>{EthTools.formatBalance(this.state.Train.price ,'0.00','eur')} € / {EthTools.formatBalance(this.state.Train.price ,'0.00','ether')} ETH</h3>
                         </span>
                     </div>
                     <div className="col col-2 tablet-col-11 mobile-col-1-2">
@@ -201,6 +228,7 @@ componentDidMount(){
                         
                     <div className="col col-5 tablet-col-11 mobile-col-1-2">
                         <h3>Ticket status</h3>
+                        <p>{this.state.status.label}</p>
                     </div> 
                </div>
 

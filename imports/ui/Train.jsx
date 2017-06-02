@@ -20,7 +20,7 @@ export default class Train extends Component {
     }
 
     setTrain(){
-        this.props.train.price = this.state.price;
+        this.props.train.price = EthTools.toWei(this.state.price,'eur');
         this.props.train.class = this.props.service;
         this.props.train.ticketType = this.props.ticketType;
         this.props.train.adults = this.props.numAdults;
@@ -28,6 +28,7 @@ export default class Train extends Component {
         this.props.train.expirationDate = this.computeExipirationDate();
         console.log(this.props.train);
         Session.set("trainTicket",this.props.train);
+        Session.set("ReqPage","Server");
         FlowRouter.go('/trains/'+ this.props.index);
     }
 
@@ -64,8 +65,8 @@ export default class Train extends Component {
                 break;      
         
         }
-        console.log(expirationDate);
-        return expirationDate.toString();
+        console.log(Date.parse(expirationDate));
+        return Date.parse(expirationDate)/1000;
     }
 
 

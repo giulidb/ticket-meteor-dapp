@@ -24,12 +24,13 @@ export default class TrainTicket extends Component {
 
    seeTicket(){
         Session.set("trainTicket", JSON.parse(this.props.item.description));
+        Session.set("Index",this.props.index);
+        Session.set("ReqPage","Blockchain");
         FlowRouter.go('/trains/'+ this.props.index);
     }
 
     render() {
 
-        console.log(this.props.item.description);
         var item = JSON.parse(this.props.item.description);
         console.log(item);
         var status;
