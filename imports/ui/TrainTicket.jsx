@@ -62,12 +62,12 @@ export default class TrainTicket extends Component {
                     </div>
                     <div className="col col-2 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                          <span> {item.categoriaDescrizione}</span>
+                          <span> {item.trainType}</span>
                         </span>
                     </div>  
                     <div className="col col-2 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                           <span>Single Ticket</span>
+                           <span>{item.ticketType}</span>
                         </span>
                     </div>     
                     <div className="col col-4 tablet-col-11 mobile-col-1-2">

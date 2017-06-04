@@ -46,6 +46,7 @@ export default class TrainDetailed extends TrackerReact(Component){
             this.setState({Train: Session.get("trainTicket")});     
 }
 
+
 componentDidMount(){
     this.setState({adults: "Adults: " + this.state.Train.adults});
             if(this.state.Train.children >0 )
@@ -60,9 +61,48 @@ componentDidMount(){
  
      this.setState({expiration: ("0" + (exp.getDate())).slice(-2) + "/" + ("0" + (exp.getMonth() + 1)).slice(-2) + "/" + exp.getFullYear()});   
      this.loadContract();
+     this.startEventListerner();
     
 
 }
+
+   async startEventListerner(){
+        var addr = this.getContractAddr();
+        var self = this;
+        this.Transport = await selectContractInstance(transport_artifacts,addr[0].address);
+        this.Transport.allEvents(function(error,log){
+                if(!error){
+                    self.refreshStatus();
+                }
+            });
+
+    }  
+
+  async refreshStatus(){
+       var addr = this.getContractAddr();
+       this.Transport = await selectContractInstance(transport_artifacts,addr[0].address);
+       var tempStatus = { value: "", label: ""};
+       const TicketItemResp = await this.Transport.getTicket.call(this.state.account,Session.get("Index"));
+                    console.log(TicketItemResp);
+                    console.log( web3.toUtf8(TicketItemResp[3]).trim())
+                    var status = web3.toUtf8(TicketItemResp[3]).trim();
+                    switch(status){
+                            case "requested":
+                                    tempStatus.value = "requested";
+                                    tempStatus.label = "Waiting for emission in blockchain";
+                                    break;
+                            case "emitted":        
+                                    tempStatus.value = "emitted";
+                                    tempStatus.label = "Ticket emitted, you can buy it";
+                                    break;
+                            case "valid":
+                                    tempStatus.value = "valid";
+                                    tempStatus.label = "Ticket valid, you can use it";
+                        }
+
+                    this.setState({status: tempStatus});
+                    console.log(this.state.status);
+  }  
 
   async loadContract(){
         var addr = this.getContractAddr();
@@ -111,6 +151,8 @@ componentDidMount(){
                                              gas: this.state.gas, value: this.state.deposit.valueOf()});
     console.log(res);
     Bert.alert('Congratulations! Your transaction has been successful!','success','fixed-top','fa-smile-o');
+    var numTicket = await this.Transport.numTickets.call(this.state.account);
+    Session.set("Index",numTicket.valueOf()-1);
     Meteor.call("configureTicket",this.state.Train, this.state.account,(error, response)=>{
                 console.log(error);
                 console.log("return method");
@@ -178,9 +220,9 @@ componentDidMount(){
                 <br/><br/><br/><br/>
           
                 <div className="row clear">
-                    <div className="col col-1 tablet-col-11 mobile-col-1-2">
+                    <div className="col col-2 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                          <label>Type: </label> <h3>{this.state.Train.categoriaDescrizione}</h3>
+                          <label>Type: </label> <h3>{this.state.Train.trainType}</h3>
                         </span>
                     </div>
                     <div className="col col-2 tablet-col-11 mobile-col-1-2">
@@ -243,20 +285,21 @@ componentDidMount(){
                         <input type="submit" value= "Buy"  onClick = {this.buy.bind(this)}
                                              disabled = {(this.state.status.value == "emitted") ? false : true} />
                             <br/>
-                        <input type="submit" value= "Refund" disabled = {true}
+                        <input type="submit" value= "Deposit Refund" disabled = {true}
                                              disabled = {(this.state.status.value == "requested") ? false : true} />
                              <br/>
                         <input type="submit" value= "Use" disabled = {true}
                                              disabled = {(this.state.status.value == "valid") ? false : true} />
+                       <br/><br/>
+                       <hr/>  
                    </div> 
                         
                     <div className="col col-5 tablet-col-11 mobile-col-1-2">
                         <h3>Ticket status</h3>
-                        <p>{this.state.status.label}</p>
+                        <div className = {!this.state.status.label ? "loader" : ""}>{this.state.status.label}</div>
                     </div> 
                </div>
-
-                
+                               
                </ReactCSSTransitionGroup>
                 
         )

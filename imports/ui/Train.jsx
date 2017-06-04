@@ -2,6 +2,7 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {Meteor} from 'meteor/meteor';
+import Vehicle from './Vehicle.jsx';
 
 
 // Contract component - represents a single todo item
@@ -26,6 +27,7 @@ export default class Train extends Component {
         this.props.train.adults = this.props.numAdults;
         this.props.train.children = this.props.children;
         this.props.train.expirationDate = this.computeExipirationDate();
+        this.props.train.trainType = this.props.trainType;
         console.log(this.props.train);
         Session.set("trainTicket",this.props.train);
         Session.set("ReqPage","Server");
@@ -43,6 +45,17 @@ export default class Train extends Component {
                      this.props.children, this.props.numAdults, this.props.ticketType, (error, response)=>{
             this.setState({price: response});
       });
+    }
+
+    renderVehicles(){
+       return(<div>
+           {this.props.train.vehicles.map((vehicle,vehicleIndex) => {
+                          return (<Vehicle key={vehicleIndex} vehicle = {vehicle}/>)     
+                        })
+            }
+            </div>
+    );
+        
     }
     
     computeExipirationDate(){
@@ -95,15 +108,14 @@ export default class Train extends Component {
                     <div className="col col-2 tablet-col-2 mobile-full">
                         <span className="no-tablet no-mobile">
                                 <span>{this.props.train.durata}</span>
-
+                                <h3>Changes: {this.props.train.vehicles.length - 1}</h3>
                         </span>
                     </div>
 
                     <div className="col col-2 tablet-col-11 mobile-col-1-2">
-                        <span className="no-tablet no-mobile">
-                             <span>{this.props.train.categoriaDescrizione}</span>
-                                <h3>{this.props.train.numeroTreno}</h3>  
-                        </span>
+                         <span className="no-tablet no-mobile">
+                             {this.renderVehicles()}
+                         </span>
                     </div>
 
                     <div className="col col-2 tablet-col-11 mobile-col-1-2">

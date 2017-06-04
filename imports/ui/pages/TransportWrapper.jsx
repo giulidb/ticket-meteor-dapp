@@ -57,7 +57,8 @@ export default class TransportWrapper extends TrackerReact(Component) {
         adults: '1',
         hour: '0' ,
         seeTicket: 'false',
-        buttonName: 'See Tickets'        
+        buttonName: 'See Tickets',   
+        loading: 'false'
     }
 
   }
@@ -130,33 +131,42 @@ export default class TransportWrapper extends TrackerReact(Component) {
           console.log("callback");
                  var trains = [];
                  var res = JSON.parse(response.content)
+                 console.log(res);
                  var solutions = res.soluzioni;
                  for(var i = 0; i < solutions.length; i++){
+                    var search = true;
                     var vehicles = solutions[i].vehicles;
-                        for(var j = 0; j < vehicles.length; j++){
-                            //add travel time
-                            vehicles[j].durata = solutions[i].durata;
-                            // filter train type
-                            console.log(self.state.selectedTrain.value);
-                            if(vehicles[j].categoriaDescrizione == 'REG' || vehicles[j].categoriaDescrizione == 'RV' ){
-                                   if(self.state.selectedTrain.value == 'RV') 
-                                        trains.push(vehicles[j]);
-                            }
-                            else{
-                                if(self.state.selectedTrain.value != 'RV')
-                                        trains.push(vehicles[j]);
-                            }
+                        for(var j = 0; j < vehicles.length && search == true; j++){
+                            if(j == 0)
+                                solutions[i].orarioPartenza = vehicles[j].orarioPartenza;
+                            if(j == vehicles.length - 1)
+                                solutions[i].orarioArrivo = vehicles[j].orarioArrivo;    
+                           // check if solutions match search paramters 
+                           if(vehicles[j].categoriaDescrizione == 'REG' || vehicles[j].categoriaDescrizione == 'RV' ){
+                               if(self.state.selectedTrain.value != 'RV'){
+                                    search = false;}     
+                           }
+                           else{
+                               if(self.state.selectedTrain.value == 'RV'){
+                                   search = false;
+                               }
 
-                            if(self.state.selectedTicket.value != "single" && trains.length > 0){
-                                        self.setState({results: trains});
-                                        return;
-                            }
-                                
+                           }
                         }
+                          // add valid solutions to results
+                          
+                          solutions[i].origine = res.origine;
+                          solutions[i].destinazione = res.destinazione;          
+                          
+                          if(search == true)
+                              trains.push(solutions[i]);  
+                        
             }
 
             console.log(trains);
             self.setState({results: trains});
+            if(this.state.results.length == 0)
+                    Bert.alert('No solution matches your request!','warning','fixed-top','fa-frown-o');
             console.log("fine callback");       
       });
    
@@ -230,6 +240,7 @@ export default class TransportWrapper extends TrackerReact(Component) {
         console.log("seeTickets");
         this.setState({seeTicket: !this.state.seeTicket});
         this.setState({buttonName: (this.state.seeTicket ? "Hide Tickets" : "See Tickets")});
+        this.setState({loading: "true"});
         this.loadTickets();
     }
 
@@ -262,6 +273,7 @@ export default class TransportWrapper extends TrackerReact(Component) {
         TicketItemsResp.push(descriptions,requestedTime,emissionTimes,status);
         const TicketItems = mapReponseToJSON(TicketItemsResp,['description','requestedTime','emissionTime','status'],"arrayOfObject");
         this.setState({Tickets: TicketItems});}
+        this.setState({loading: "false"});
  }
   
   logChangeTrain(val){
@@ -284,12 +296,15 @@ export default class TransportWrapper extends TrackerReact(Component) {
         if(this.state.seeTicket)
             return;
 
+        if(this.state.loading == "true"){
+            return(<div className= "loader" ></div>);
+        }    
+
          if(this.state.Tickets.length == 0){
              return (
                     <div>
                         <p>You haven't tickets yet.</p>
-                        <br/><br/>
-                        <hr/> 
+                        
                     </div>); 
          }
         
@@ -338,7 +353,13 @@ export default class TransportWrapper extends TrackerReact(Component) {
   render() {
 
     return (
-         <div>
+         <ReactCSSTransitionGroup
+                  component="div"
+                  transitionName="route"
+                  transitionEnterTimeout={500}
+                  transitionLeaveTimeout={300}
+                  transitionAppear={true}
+                  transitionAppearTimeout={500}>
 
              <h1>Train tickets search</h1>
              <p>Insert search parameters</p>
@@ -413,9 +434,11 @@ export default class TransportWrapper extends TrackerReact(Component) {
                          <h1>My Tickets</h1>
                          <button onClick={this.seeTickets.bind(this)}>{this.state.buttonName}</button>
                         {this.renderMyTickets()}
-                </div>            
+                </div>     
+                <br/><br/>
+                <hr/>        
            
-         </div>
+         </ReactCSSTransitionGroup>
 
     );
   }
