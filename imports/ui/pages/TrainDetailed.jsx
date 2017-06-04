@@ -100,16 +100,36 @@ componentDidMount(){
 
   }
 
-  async makeDeposit(addr) {
+  async makeDeposit() {
     var addr = this.getContractAddr();
     this.Transport = await selectContractInstance(transport_artifacts,addr[0].address);
+    console.log(addr[0].address);
+    console.log(this.state.deposit.valueOf());
+    console.log(this.state.Train);
     const res = await  this.Transport.makeDeposit(JSON.stringify(this.state.Train),
                                             {from: this.state.account, gasPrice: this.state.gasPrice,
                                              gas: this.state.gas, value: this.state.deposit.valueOf()});
     console.log(res);
     Bert.alert('Congratulations! Your transaction has been successful!','success','fixed-top','fa-smile-o');
+    Meteor.call("configureTicket",this.state.Train, this.state.account,(error, response)=>{
+                console.log(error);
+                console.log("return method");
+        });
 
-  } 
+    } 
+
+    async buy() {
+    var addr = this.getContractAddr();
+    this.Transport = await selectContractInstance(transport_artifacts,addr[0].address);
+    console.log(this.state.Train.price - this.state.deposit.valueOf());
+    console.log(Session.get("Index"));
+    const res = await  this.Transport.buyTicket(Session.get("Index"),
+                                            {from: this.state.account, gasPrice: this.state.gasPrice,
+                                             gas: this.state.gas, value: (this.state.Train.price - this.state.deposit.valueOf())});
+    console.log(res);
+    Bert.alert('Congratulations! Your transaction has been successful!','success','fixed-top','fa-smile-o');
+
+    } 
 
   componentWillUnmount(){
         this.state.subscription.contract.stop();
@@ -217,13 +237,17 @@ componentDidMount(){
               
               <div className="row clear">
                     <div className="col col-6 tablet-col-11 mobile-col-1-2">
-                        <input type="submit" value= "Deposit for blockchain" onClick = {this.makeDeposit.bind(this)} />
+                        <input type="submit" value= "Deposit for blockchain" onClick = {this.makeDeposit.bind(this)}
+                                             disabled = { (this.state.status.value == "notrequested") ? false : true}/>
                             <br/>                       
-                        <input type="submit" value= "Buy" disabled = {true} />
+                        <input type="submit" value= "Buy"  onClick = {this.buy.bind(this)}
+                                             disabled = {(this.state.status.value == "emitted") ? false : true} />
                             <br/>
-                        <input type="submit" value= "Refund" disabled = {true} />
+                        <input type="submit" value= "Refund" disabled = {true}
+                                             disabled = {(this.state.status.value == "requested") ? false : true} />
                              <br/>
-                        <input type="submit" value= "Use" disabled = {true} />
+                        <input type="submit" value= "Use" disabled = {true}
+                                             disabled = {(this.state.status.value == "valid") ? false : true} />
                    </div> 
                         
                     <div className="col col-5 tablet-col-11 mobile-col-1-2">

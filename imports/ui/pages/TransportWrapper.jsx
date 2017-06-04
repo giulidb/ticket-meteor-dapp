@@ -98,13 +98,12 @@ export default class TransportWrapper extends TrackerReact(Component) {
   }
 
   handleData(){
-      var destId = 6500;
       console.log(this.state.originId);
       console.log(this.state.destId);
 
       var d =  new Date(this.state.startDate);
       var date = d.getFullYear() + '-' + ("0" + (d.getMonth() + 1)).slice(-2) + '-' + ("0" + (d.getDate())).slice(-2) + 'T' + ("0" + (this.refs.hour.state.value + 1)).slice(-2)+':00:00'
-      var link = 'http://www.viaggiatreno.it/viaggiatrenonew/resteasy/viaggiatreno/soluzioniViaggioNew/' + this.state.originId.replace(/(?:\r\n|\r|\n)/g, '') + '/' + destId + '/' + date;
+      var link = 'http://www.viaggiatreno.it/viaggiatrenonew/resteasy/viaggiatreno/soluzioniViaggioNew/' + this.state.originId.replace(/(?:\r\n|\r|\n)/g, '') + '/' + this.state.destId.replace(/(?:\r\n|\r|\n)/g, '') + '/' + date;
       return link;
 }
 

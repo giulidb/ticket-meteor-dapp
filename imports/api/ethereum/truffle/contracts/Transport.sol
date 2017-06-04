@@ -124,7 +124,7 @@ contract Transport{
     // or invalidate it if user not has inserted the correct price
     function configureTicket(address addr,
                              string _description,
-                             TicketTypes _t,
+                             uint _t,
                              uint index,
                              uint _expirationTime, 
                              uint _maxUses,
@@ -139,7 +139,7 @@ contract Transport{
         
         // Configure the ticket
         ticket.description = _description;
-        ticket.t = _t;
+        ticket.t = TicketTypes(_t);
         ticket.emissionTime = now;
         ticket.expirationTime = _expirationTime;
         ticket.maxUses = _maxUses;

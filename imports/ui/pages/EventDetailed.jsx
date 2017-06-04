@@ -85,9 +85,6 @@ export default class EventDetailed extends TrackerReact(Component){
                     }
                    <hr/> 
                    </ul> 
-                
-                   
-                
                </ReactCSSTransitionGroup>
                 
         )
