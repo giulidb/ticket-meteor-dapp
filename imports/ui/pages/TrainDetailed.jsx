@@ -30,6 +30,7 @@ export default class TrainDetailed extends TrackerReact(Component){
             dP: "",
             dA:"",
             date: "",
+            MAX_TIME:"",
             expiration: "",
             status: {
                 value: "",
@@ -61,7 +62,7 @@ componentDidMount(){
  
      this.setState({expiration: ("0" + (exp.getDate())).slice(-2) + "/" + ("0" + (exp.getMonth() + 1)).slice(-2) + "/" + exp.getFullYear()});   
      this.loadContract();
-     this.startEventListerner();
+
     
 
 }
@@ -83,21 +84,32 @@ componentDidMount(){
        this.Transport = await selectContractInstance(transport_artifacts,addr[0].address);
        var tempStatus = { value: "", label: ""};
        const TicketItemResp = await this.Transport.getTicket.call(this.state.account,Session.get("Index"));
-                    console.log(TicketItemResp);
-                    console.log( web3.toUtf8(TicketItemResp[3]).trim())
                     var status = web3.toUtf8(TicketItemResp[3]).trim();
                     switch(status){
                             case "requested":
+                                    var deadlineTimestamp = parseInt(TicketItemResp[1].valueOf()) + parseInt(this.state.MAX_TIME);
+                                    console.log(deadlineTimestamp);
+                                    var deadline = new Date(deadlineTimestamp * 1000);  
+                                    console.log(deadline);
                                     tempStatus.value = "requested";
-                                    tempStatus.label = "Waiting for emission in blockchain";
+                                    tempStatus.label = "Waiting for emission in blockchain, if the the ticket will be not emitted within the  "+
+                                                        ("0" + (deadline.getDate())).slice(-2) + "/" + ("0" + (deadline.getMonth() + 1)).slice(-2) + "/" + deadline.getFullYear()+" at " +
+                                                        ("0" + (deadline.getHours() + 1)).slice(-2) + ":" + ("0" + (deadline.getMinutes() + 1)).slice(-2) +
+                                                        "  you can withdraw your deposit back.";
                                     break;
-                            case "emitted":        
+
+                            case "emitted":   
+                                    var deadlineTimestamp =  parseInt(TicketItemResp[2].valueOf()) + parseInt(this.state.MAX_TIME); 
+                                    var deadline = new Date(deadlineTimestamp * 1000);    
                                     tempStatus.value = "emitted";
-                                    tempStatus.label = "Ticket emitted, you can buy it";
+                                    tempStatus.label = "Ticket emitted, you can buy it whithin the " + ("0" + (deadline.getDate())).slice(-2) + "/" + 
+                                                        ("0" + (deadline.getMonth() + 1)).slice(-2) + "/" + deadline.getFullYear()+" at " +
+                                                        ("0" + (deadline.getHours() + 1)).slice(-2) + ":" + ("0" + (deadline.getMinutes() + 1)).slice(-2) + ".";
                                     break;
                             case "valid":
                                     tempStatus.value = "valid";
-                                    tempStatus.label = "Ticket valid, you can use it";
+                                    tempStatus.label = "Ticket valid, you can use it. \n\r Num Used: " +
+                                    TicketItemResp[4].valueOf();
                         }
 
                     this.setState({status: tempStatus});
@@ -105,10 +117,14 @@ componentDidMount(){
   }  
 
   async loadContract(){
+        console.log(Session.get("Index"));
+        console.log(Session.get("ReqPage"));
         var addr = this.getContractAddr();
         this.Transport = await selectContractInstance(transport_artifacts,addr[0].address);
         const depositQuota = await this.Transport.depositQuota.call();
         this.setState({deposit: depositQuota});
+        const MAX_TIME = await this.Transport.maxTime.call();
+        this.setState({MAX_TIME: MAX_TIME});
         var tempStatus = { value: "", label: ""};
         if(Session.get("ReqPage") == "Blockchain"){
                 const TicketItemResp = await this.Transport.getTicket.call(this.state.account,Session.get("Index"));
@@ -116,17 +132,30 @@ componentDidMount(){
                 console.log( web3.toUtf8(TicketItemResp[3]).trim())
                 var status = web3.toUtf8(TicketItemResp[3]).trim();
                 switch(status){
-                    case "requested":
-                            tempStatus.value = "requested";
-                            tempStatus.label = "Waiting for emission in blockchain";
-                            break;
-                    case "emitted":        
-                            tempStatus.value = "emitted";
-                            tempStatus.label = "Ticket emitted, you can buy it";
-                            break;
-                    case "valid":
-                            tempStatus.value = "valid";
-                            tempStatus.label = "Ticket valid, you can use it";
+                     case "requested":
+                                    var deadlineTimestamp = parseInt(TicketItemResp[1].valueOf()) + parseInt(this.state.MAX_TIME);
+                                    console.log(deadlineTimestamp);
+                                    var deadline = new Date(deadlineTimestamp * 1000);  
+                                    console.log(deadline);
+                                    tempStatus.value = "requested";
+                                    tempStatus.label = "Waiting for emission in blockchain, if the the ticket will be not emitted within the  "+
+                                                        ("0" + (deadline.getDate())).slice(-2) + "/" + ("0" + (deadline.getMonth() + 1)).slice(-2) + "/" + deadline.getFullYear()+" at " +
+                                                        ("0" + (deadline.getHours() + 1)).slice(-2) + ":" + ("0" + (deadline.getMinutes() + 1)).slice(-2) +
+                                                        "  you can withdraw your deposit back.";
+                                    break;
+
+                            case "emitted":   
+                                    var deadlineTimestamp =  parseInt(TicketItemResp[2].valueOf()) + parseInt(this.state.MAX_TIME); 
+                                    var deadline = new Date(deadlineTimestamp * 1000);    
+                                    tempStatus.value = "emitted";
+                                    tempStatus.label = "Ticket emitted, you can buy it whithin the " + ("0" + (deadline.getDate())).slice(-2) + "/" + 
+                                                        ("0" + (deadline.getMonth() + 1)).slice(-2) + "/" + deadline.getFullYear()+" at " +
+                                                        ("0" + (deadline.getHours() + 1)).slice(-2) + ":" + ("0" + (deadline.getMinutes() + 1)).slice(-2) + ".";
+                                    break;
+                            case "valid":
+                                    tempStatus.value = "valid";
+                                    tempStatus.label = "Ticket valid, you can use it. \n\r Num Used: " +
+                                    TicketItemResp[4].valueOf();
                   }
 
         }
@@ -153,6 +182,8 @@ componentDidMount(){
     Bert.alert('Congratulations! Your transaction has been successful!','success','fixed-top','fa-smile-o');
     var numTicket = await this.Transport.numTickets.call(this.state.account);
     Session.set("Index",numTicket.valueOf()-1);
+    console.log(Session.get("Index"));
+    this.startEventListerner();
     Meteor.call("configureTicket",this.state.Train, this.state.account,(error, response)=>{
                 console.log(error);
                 console.log("return method");
@@ -161,17 +192,20 @@ componentDidMount(){
     } 
 
     async buy() {
+        console.log("buy");
+        console.log(Session.get("Index"));
     var addr = this.getContractAddr();
     this.Transport = await selectContractInstance(transport_artifacts,addr[0].address);
-    console.log(this.state.Train.price - this.state.deposit.valueOf());
-    console.log(Session.get("Index"));
+    console.log(this.state.Train.price)
+    console.log(this.state.deposit.valueOf());
     const res = await  this.Transport.buyTicket(Session.get("Index"),
                                             {from: this.state.account, gasPrice: this.state.gasPrice,
                                              gas: this.state.gas, value: (this.state.Train.price - this.state.deposit.valueOf())});
     console.log(res);
     Bert.alert('Congratulations! Your transaction has been successful!','success','fixed-top','fa-smile-o');
 
-    } 
+} 
+
 
   componentWillUnmount(){
         this.state.subscription.contract.stop();
@@ -181,6 +215,32 @@ componentDidMount(){
   getContractAddr(){
     return transport.find({}).fetch();
   }
+
+async use(){
+    console.log("use");
+    var contract_addr = this.getContractAddr();
+    this.Transport = await selectContractInstance(transport_artifacts,contract_addr[0].address);
+    console.log(Session.get("Index"));
+    const res = await  this.Transport.useTicket(Session.get("Index"),
+                                            {from: this.state.account, gasPrice: this.state.gasPrice,
+                                             gas: this.state.gas});
+    console.log(res);
+    Bert.alert('Congratulations! Your convalidation has been successful!','success','fixed-top','fa-smile-o');
+}
+
+async refund() {
+    console.log("refund");
+    console.log(Session.get("Index"));
+    var addr = this.getContractAddr();
+    this.Transport = await selectContractInstance(transport_artifacts,addr[0].address);
+    const res = await  this.Transport.withdrawDeposit(Session.get("Index"),
+                                            {from: this.state.account, gasPrice: this.state.gasPrice,
+                                             gas: this.state.gas});
+    console.log(res);
+    Bert.alert('Congratulations! Your deposit has been credited on your account!','success','fixed-top','fa-smile-o');
+
+    } 
+
 
   renderTicket(){
 
@@ -285,13 +345,12 @@ componentDidMount(){
                         <input type="submit" value= "Buy"  onClick = {this.buy.bind(this)}
                                              disabled = {(this.state.status.value == "emitted") ? false : true} />
                             <br/>
-                        <input type="submit" value= "Deposit Refund" disabled = {true}
+
+                        <input type="submit" value= "Deposit Refund" disabled = {true} onClick = {this.refund.bind(this)}
                                              disabled = {(this.state.status.value == "requested") ? false : true} />
                              <br/>
-                        <input type="submit" value= "Use" disabled = {true}
+                        <input type="submit" value= "Use" disabled = {true} onClick = {this.use.bind(this)}
                                              disabled = {(this.state.status.value == "valid") ? false : true} />
-                       <br/><br/>
-                       <hr/>  
                    </div> 
                         
                     <div className="col col-5 tablet-col-11 mobile-col-1-2">
@@ -299,6 +358,7 @@ componentDidMount(){
                         <div className = {!this.state.status.label ? "loader" : ""}>{this.state.status.label}</div>
                     </div> 
                </div>
+               <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><hr/>
                                
                </ReactCSSTransitionGroup>
                 

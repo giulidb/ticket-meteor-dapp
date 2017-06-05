@@ -166,15 +166,15 @@ contract Transport{
   		}
     
 	function useTicket(uint index) onlyBefore(TicketsOf[msg.sender][index].expirationTime)
-	                               public returns (bool){
+	                               public{
 	     //check if user has completed the purchased
-        if(TicketsOf[msg.sender][index].status == "valid")
+        if(TicketsOf[msg.sender][index].status != "valid")
             throw;
 	    Ticket ticket = TicketsOf[msg.sender][index];
 	    // enum type   
-	    if((ticket.t == TicketTypes.single && ticket.numUsed >= 1) ||
-	       (ticket.t == TicketTypes.carnet && ticket.numUsed >= ticket.maxUses))
-	            throw;
+	   if((ticket.t == TicketTypes.single && ticket.numUsed >= 1) ||
+                (ticket.t == TicketTypes.carnet && ticket.numUsed >= ticket.maxUses))
+                throw;
         
         ticket.numUsed++;  
 	    //log this event
@@ -187,41 +187,47 @@ contract Transport{
        return TicketsOf[user].length;
     }
     
-       /// Function to get user ticket id eventually returns 0 if 
+      /// Function to get user ticket id eventually returns 0 if 
     /// user has not bought any tickets.
-    function getTicket(address user, uint i) public returns(bytes,uint,uint,bytes32){
+    function getTicket(address user, uint i) public returns(bytes,uint,uint,bytes32,uint){
 
             bytes descriptions = bytes(TicketsOf[user][i].description);
             uint requestedTime = TicketsOf[user][i].requestedTime;
             uint emissionTimes = TicketsOf[user][i].emissionTime;
             bytes32 status = TicketsOf[user][i].status;
+            uint numUsed = TicketsOf[user][i].numUsed;
 
-        return (descriptions,requestedTime,emissionTimes,status);
+        return (descriptions,requestedTime,emissionTimes,status,numUsed);
     }
 
 
     // Withdraw deposit if DT does not retrive the ticket in time
-    function withdrawDeposit(uint index) onlyValue 
-                               onlyAfter(TicketsOf[msg.sender][index].requestedTime + maxTime)
-                               returns(bool){
-        
-        // check if the tickets has been emitted
-        if(TicketsOf[msg.sender][index].status == "emitted")
-                throw;
-        
-        uint amount = balances[msg.sender];
-        // Remember to zero the pending refund before
-        // sending to avoid re-entrancy attacks
-        balances[msg.sender] = 0;
-        if (msg.sender.send(amount)) {
-            DepositRefunded(msg.sender, amount,now);
-            return true;
-        } else {
-            balances[msg.sender] = amount;
-            return false;
-         }
-        
-      
+    function withdrawDeposit(uint index) onlyValue
+                                    onlyAfter(TicketsOf[msg.sender][index].requestedTime + maxTime)
+                                    returns(bool){
+                
+                // check if the tickets has been emitted
+                if(TicketsOf[msg.sender][index].status == "emitted")
+                        throw;
+                
+                uint amount = balances[msg.sender];
+                // Remember to zero the pending refund before
+                // sending to avoid re-entrancy attacks
+                balances[msg.sender] = 0;
+                if (msg.sender.send(amount)) {
+                    DepositRefunded(msg.sender, amount,now);
+                    return true;
+                } else {
+                    balances[msg.sender] = amount;
+                    return false;
+                }
+
+                // delete Ticket from the contract
+                if(TicketsOf[msg.sender].length > 1)
+                    for(uint i = index; i < TicketsOf[msg.sender].length - 1 ; i++)
+                            TicketsOf[msg.sender][i] = TicketsOf[msg.sender][i+1];
+                TicketsOf[msg.sender].length--;              
+       
         
     }
     

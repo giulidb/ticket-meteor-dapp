@@ -37,17 +37,24 @@ export default class Train extends Component {
     componentWillMount(){
          this.setState({dP: new Date(Date.parse(this.props.train.orarioPartenza))});
          this.setState({dA: new Date(Date.parse(this.props.train.orarioArrivo))});
-         if(this.props.train.ticketType == 'Simple Ticket'){
+         console.log("TicketType: "+ this.props.ticketType);
+        /* if(this.props.ticketType == 'Simple Ticket'){
                 this.setState({hP: ("0" + (this.state.dP.getHours() + 1)).slice(-2) +':' +("0" + (this.state.dP.getMinutes() + 1)).slice(-2)});
                 this.setState({hA: ("0" + (this.state.dA.getHours() + 1)).slice(-2) +':' +("0" + (this.state.dA.getMinutes() + 1)).slice(-2)});
             }
+    */
          Meteor.call("REST.computePrice", this.props.train.durata, this.props.service, this.props.trainType,
                      this.props.children, this.props.numAdults, this.props.ticketType, (error, response)=>{
             this.setState({price: response});
       });
     }
 
+
+        
+
     renderVehicles(){
+
+       if(this.props.ticketType == 'Simple Ticket'){ 
        return(<div>
            {this.props.train.vehicles.map((vehicle,vehicleIndex) => {
                           return (<Vehicle key={vehicleIndex} vehicle = {vehicle}/>)     
@@ -55,6 +62,10 @@ export default class Train extends Component {
             }
             </div>
     );
+       }
+       else{
+           return(<span>{this.props.trainType}</span>);
+       }
         
     }
     
@@ -63,6 +74,7 @@ export default class Train extends Component {
         switch(this.props.train.ticketType){
             case "Simple Ticket":            
                 expirationDate = new Date(this.state.dP.getFullYear(),this.state.dP.getMonth(),this.state.dP.getDate());
+                expirationDate.setDate(this.state.dP.getDate() + 1);
                 break;
         case "Month Subscription": 
                 expirationDate = new Date(this.state.dP.getFullYear(),this.state.dP.getMonth()+1,1);
