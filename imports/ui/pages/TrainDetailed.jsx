@@ -60,6 +60,11 @@ componentDidMount(){
     }
      var exp = new Date(this.state.Train.expirationDate*1000);
  
+      Meteor.call("getFacebookId", (error, response)=>{
+            console.log(response);
+            Session.set("FacebookId",response);
+      });
+
      this.setState({expiration: ("0" + (exp.getDate())).slice(-2) + "/" + ("0" + (exp.getMonth() + 1)).slice(-2) + "/" + exp.getFullYear()});   
      this.loadContract();
 
@@ -175,7 +180,7 @@ componentDidMount(){
     console.log(addr[0].address);
     console.log(this.state.deposit.valueOf());
     console.log(this.state.Train);
-    const res = await  this.Transport.makeDeposit(JSON.stringify(this.state.Train),
+    const res = await  this.Transport.makeDeposit(JSON.stringify(this.state.Train), web3.sha3(Session.get("FacebookId")),
                                             {from: this.state.account, gasPrice: this.state.gasPrice,
                                              gas: this.state.gas, value: this.state.deposit.valueOf()});
     console.log(res);

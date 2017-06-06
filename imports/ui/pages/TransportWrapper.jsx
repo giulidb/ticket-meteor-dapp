@@ -58,7 +58,8 @@ export default class TransportWrapper extends TrackerReact(Component) {
         hour: '0' ,
         seeTicket: 'false',
         buttonName: 'See Tickets',   
-        loading: 'false'
+        loadingTickets: 'false',
+        loadingResults: 'false'
     }
 
   }
@@ -127,6 +128,7 @@ export default class TransportWrapper extends TrackerReact(Component) {
         var self = this;
         var link = this.handleData();
         console.log(link);
+        this.setState({loadingResults: true});
         Meteor.call("RESTcall", link, (error, response)=>{
           console.log("callback");
                  var trains = [];
@@ -159,12 +161,15 @@ export default class TransportWrapper extends TrackerReact(Component) {
                           solutions[i].destinazione = res.destinazione;          
                           
                           if(search == true)
-                              trains.push(solutions[i]);  
+                              trains.push(solutions[i]); 
+                          if(self.state.selectedTicket.value != "single")
+                                break;     
                         
             }
 
             console.log(trains);
             self.setState({results: trains});
+            this.setState({loadingResults: false});
             if(this.state.results.length == 0)
                     Bert.alert('No solution matches your request!','warning','fixed-top','fa-frown-o');
             console.log("fine callback");       
@@ -175,15 +180,16 @@ export default class TransportWrapper extends TrackerReact(Component) {
 
     renderResults(){
 
-    if(!this.state.results.length > 0){
-        return;}
+    if(this.state.loadingResults == true)
+        return(<div className = "loader"></div>);
 
-        console.log("render result");
+    if(!(this.state.results.length > 0)){
+        return;}    
+
     return(
 
-                <div>  
+                <div className>  
                     <h1>Results</h1>
-
                  <ul className="dapp-account-list">
 
                  <li><div className="row clear">
@@ -240,7 +246,7 @@ export default class TransportWrapper extends TrackerReact(Component) {
         console.log("seeTickets");
         this.setState({seeTicket: !this.state.seeTicket});
         this.setState({buttonName: (this.state.seeTicket ? "Hide Tickets" : "See Tickets")});
-        this.setState({loading: "true"});
+        this.setState({loadingTickets: "true"});
         this.loadTickets();
     }
 
@@ -273,7 +279,7 @@ export default class TransportWrapper extends TrackerReact(Component) {
         TicketItemsResp.push(descriptions,requestedTime,emissionTimes,status);
         const TicketItems = mapReponseToJSON(TicketItemsResp,['description','requestedTime','emissionTime','status'],"arrayOfObject");
         this.setState({Tickets: TicketItems});}
-        this.setState({loading: "false"});
+        this.setState({loadingTickets: "false"});
  }
   
   logChangeTrain(val){
@@ -296,7 +302,7 @@ export default class TransportWrapper extends TrackerReact(Component) {
         if(this.state.seeTicket)
             return;
 
-        if(this.state.loading == "true"){
+        if(this.state.loadingTickets == "true"){
             return(<div className= "loader" ></div>);
         }    
 

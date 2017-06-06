@@ -23,10 +23,17 @@ export default class EventDetailed extends TrackerReact(Component){
     this.state = {
       subscription: {
         events: Meteor.subscribe('allEvents')
-      },
+       },
        Tickets: [],
        address: ""
     }
+  }
+
+  componentDidMount(){
+      Meteor.call("getFacebookId", (error, response)=>{
+            console.log(response);
+            Session.set("FacebookId",response);
+      });
   }
 
   async loadContract(addr) {
@@ -39,7 +46,6 @@ export default class EventDetailed extends TrackerReact(Component){
 
   componentWillUnmount(){
     this.state.subscription.events.stop();
-
   }
 
    contract(){

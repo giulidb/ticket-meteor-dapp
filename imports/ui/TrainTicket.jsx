@@ -48,6 +48,7 @@ export default class TrainTicket extends Component {
         return (
                 
         <li>
+            <hr/>
             <div className="row clear">
                 <button  onClick={this.seeTicket.bind(this)}> 
                     <div className="col col-2 tablet-col-11 mobile-col-1-2">
@@ -77,7 +78,6 @@ export default class TrainTicket extends Component {
                     </div>   
                 </button>     
             </div>
-            <hr/>
         </li>
     );
 

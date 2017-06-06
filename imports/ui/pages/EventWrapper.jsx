@@ -24,7 +24,7 @@ export default class EventWrapper extends TrackerReact(Component) {
 
     this.state = {
       subscription: {
-        events: Meteor.subscribe('allEvents')
+        events: Meteor.subscribe('allEvents'),
       }
     }
 
@@ -40,10 +40,11 @@ export default class EventWrapper extends TrackerReact(Component) {
   events(){
     return Events.find({}).fetch();
   }
+  
 
 
   render() {
-     
+
     if(!this.state.subscription.events.ready)
         return(
             <div className="loader">Loading...</div>

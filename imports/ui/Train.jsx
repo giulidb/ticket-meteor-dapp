@@ -35,14 +35,16 @@ export default class Train extends Component {
     }
 
     componentWillMount(){
-         this.setState({dP: new Date(Date.parse(this.props.train.orarioPartenza))});
-         this.setState({dA: new Date(Date.parse(this.props.train.orarioArrivo))});
+         var dP = new Date(Date.parse(this.props.train.orarioPartenza));
+         var dA = new Date(Date.parse(this.props.train.orarioArrivo));
+         this.setState({dP:dP});
+         this.setState({dA:dA});         
          console.log("TicketType: "+ this.props.ticketType);
-        /* if(this.props.ticketType == 'Simple Ticket'){
-                this.setState({hP: ("0" + (this.state.dP.getHours() + 1)).slice(-2) +':' +("0" + (this.state.dP.getMinutes() + 1)).slice(-2)});
-                this.setState({hA: ("0" + (this.state.dA.getHours() + 1)).slice(-2) +':' +("0" + (this.state.dA.getMinutes() + 1)).slice(-2)});
+         if(this.props.ticketType == 'Simple Ticket'){
+                this.setState({hP: ("0" + (dP.getHours() + 1)).slice(-2) +':' +("0" + (dP.getMinutes() + 1)).slice(-2)});
+                this.setState({hA: ("0" + (dA.getHours() + 1)).slice(-2) +':' +("0" + (dA.getMinutes() + 1)).slice(-2)});
             }
-    */
+            console.log(this.state.hP);
          Meteor.call("REST.computePrice", this.props.train.durata, this.props.service, this.props.trainType,
                      this.props.children, this.props.numAdults, this.props.ticketType, (error, response)=>{
             this.setState({price: response});

@@ -15,12 +15,8 @@ export const MainLayout = ({content}) => (
                         <li><a href="/transportServices"><span><h3>Transport</h3></span></a></li>
                         <li><a href="/myAccounts"><span><h3>Exchange</h3></span></a></li>
                         <li><a href="/about"><span><h3>About</h3></span></a></li>
-                        <li><a><h3><AccountsUI/></h3></a></li>
-                        <li><a href=""></a></li>
-                        <li><a href=""></a></li>
-                        {//<li><EthereumAccounts account = {EthAccounts.findOne({address: Session.get('account')})}/></li>
-                        }
-             
+                        <li><a href=""><EthereumAccounts/></a></li>
+                        <li><AccountsUI/></li>             
                     </ul>
                 </nav>
         </header>

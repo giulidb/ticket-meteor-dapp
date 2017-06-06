@@ -10,24 +10,30 @@ import userRegistry_artifacts from '../api/ethereum/truffle/build/contracts/user
 // Contract component - represents a single todo item
 export default class EthereumAccounts extends Component{
 
-
+  constructor(){
+    super();
+    this.state = {
+      account: EthAccounts.findOne({address: Session.get('account')})
+    }
+  }
 
 
   render() {
 
+      console.log(EthAccounts.findOne({address: Session.get('account')}));
+
+      console.log(EthAccounts.find({}));
       return (
-
-      
-                  <div>
-                          <h3>{this.props.account.name}</h3>
-                          <span>{this.props.account.address}</span><br/>
-                          <span>{EthTools.formatBalance(this.props.account.balance, '0.00 unit', 'ether')}
-                                /{EthTools.formatBalance(this.props.account.balance, '0.00', 'eur')}€
-                          </span> 
-                   </div>                    
-      
-          
-
+        <div>
+            <h3>{Session.get("account")//this.state.account.name
+              }</h3>
+                   {/*       <span>{//this.state.account.address
+                            }</span><br/>
+                          <span>{//EthTools.formatBalance(this.state.account.balance, '0.00 unit', 'ether')}
+                               // /{EthTools.formatBalance(this.state.account.balance, '0.00', 'eur')
+                               }
+                          </span>        */}
+       </div>
         );
       
       }

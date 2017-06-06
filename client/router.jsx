@@ -10,7 +10,8 @@ import EventDetailed from '../imports/ui/pages/EventDetailed.jsx'
 import TrainDetailed from '../imports/ui/pages/TrainDetailed.jsx'
 
 import AccountsSettings from '../imports/ui/pages/AccountsSettings.jsx'
-import '../imports/startup/accounts-config.js';
+import {Meteor} from 'meteor/meteor'
+import '../imports/startup/accounts-config.js'
 
 
 FlowRouter.route('/', {

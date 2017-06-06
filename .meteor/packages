@@ -30,8 +30,9 @@ meteortoys:allthings
 ultimatejs:tracker-react
 stolinski:stylus-multi
 accounts-ui@1.1.9
-accounts-password@1.3.6
 themeteorchef:bert
 check@1.2.5
 ethereum:tools
 session
+accounts-facebook
+facebook-config-ui

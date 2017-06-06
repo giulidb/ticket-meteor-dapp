@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import NumericInput from 'react-numeric-input';
+import Web3 from 'web3';
 
 // Ethereum libraries and contracts
 import web3, { selectContractInstance, mapReponseToJSON } from '../api/ethereum/web3.js';
@@ -75,7 +76,7 @@ export default class Ticket extends Component {
 
     async buy(){
             const TicketsList = await selectContractInstance(event_artifacts,this.props.contract_address);
-            const res = await TicketsList.buyTicket(this.props.index,this.state.value,
+            const res = await TicketsList.buyTicket(this.props.index,this.state.value, web3.sha3(Session.get("FacebookId")),
                                                     {from: this.state.account, gasPrice: this.state.gasPrice,
                                                      gas: this.state.gas, value: web3.toWei(this.state.total_price,'ether')});
             console.log(res);

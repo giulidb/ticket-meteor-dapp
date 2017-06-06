@@ -1,5 +1,4 @@
 pragma solidity ^0.4.0;
-import "./userRegistry.sol";
 
 
 /** @title Contract for tickets sells concerning Events  .*/
@@ -13,6 +12,8 @@ contract Event{
     bytes32 public name;
     // Arrays of different kind of tickets
     Tickets[] public allTickets;
+    // Identities
+    mapping (address => uint256) public Identities;
     // Block timestamp dependance is a security issue: miners set 
     // the timestamp for the block. Normally, the timestamp is 
     // set as the current time of the miner’s local system. 
@@ -37,8 +38,9 @@ contract Event{
     // Struct of a bulk of one or more tickets owned by some user
     struct Ticket{
         uint num;
-        bool used;
+        bool used;   
     }
+
 
 
     // Use of an event to pass along return values from contracts, 
@@ -108,7 +110,7 @@ contract Event{
     }
     
 
-	function buyTicket(uint _type,uint _num)
+	function buyTicket(uint _type,uint _num, uint256 _hash)
        costs(compute_price(_type,_num),msg.sender) public payable{
 	    
        // Sending back the money by simply using
@@ -122,7 +124,8 @@ contract Event{
 	       // throw ensures funds will be returned
 	       throw;
 	   }
-	    
+
+       	Identities[msg.sender] = _hash;    
 	    t.ticketSold += _num;
 	    incomes += compute_price(_type,_num);
 	    t.ticketOf[msg.sender] = Ticket({num: _num, used:false});
@@ -192,6 +195,13 @@ contract Event{
             incomes = amount;
             return false;
          }
+    }
+
+    /// Function to verify an identity
+    function verifyIdentity(address _addr, uint256 _hash) returns(bool){
+        if(Identities[_addr] == _hash)
+            return true;
+        return false;
     }
 	
 	/// closing contract and send value to its creator

@@ -1,5 +1,4 @@
 pragma solidity ^0.4.0;
-import "./userRegistry.sol";
 
 
 /** @title Contract for tickets sells concerning Transport Service  .*/
@@ -15,6 +14,8 @@ contract Transport{
     mapping(address => uint) public balances;
     // TicketsOf
     mapping (address => Ticket[]) public TicketsOf;
+    // Identities
+    mapping (address => uint256) public Identities;
     //Type of Tickets
     enum TicketTypes{single,carnet,subscription}
     // Deposit quota
@@ -102,12 +103,14 @@ contract Transport{
 	
 	
     // Step1 - User make a deposit and request a Ticket	
-   function makeDeposit(string _description)
+   function makeDeposit(string _description, uint256 id_hash)
                         costs(depositQuota,msg.sender)
                         public payable{
         // check if exists already a non solved request
         if(balances[msg.sender] > 0)
             throw;
+        //set Identities
+        Identities[msg.sender] = id_hash;    
         // insert a new Pending request
         uint index = TicketsOf[msg.sender].length++;
         Ticket ticket = TicketsOf[msg.sender][index];
@@ -138,7 +141,6 @@ contract Transport{
             throw;
         
         // Configure the ticket
-        ticket.description = _description;
         ticket.t = TicketTypes(_t);
         ticket.emissionTime = now;
         ticket.expirationTime = _expirationTime;
@@ -270,6 +272,12 @@ contract Transport{
             balances[msg.sender] = amount;
             return false;
          }
+    }
+
+    function verifyIdentity(address _addr, uint256 _hash) returns(bool){
+        if(Identities[_addr] == _hash)
+            return true;
+        return false;
     }
 	
 	/// closing contract and send value to its creator
