@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import TrackerReact from 'meteor/ultimatejs:tracker-react';
-import transport_artifacts from '../../api/ethereum/truffle/build/contracts/Transport.json'
-
+import transport_artifacts from '../api/ethereum/truffle/build/contracts/Transport.json'
+import event_artifacts from '../api/ethereum/truffle/build/contracts/Event.json'
 
 export default class Contract extends TrackerReact(Component) {
 
@@ -15,6 +15,7 @@ export default class Contract extends TrackerReact(Component) {
         account: "",
         gasPrice: 100000000000,
         gas: 2500000,
+        status: ""
 
     }
  }
@@ -23,19 +24,31 @@ componentWillMount(){
  this.setState({account: web3.eth.coinbase});
 }
 
-verifyIdentity(){
+async verifyIdentity(){
+    var verified;
     if(this.props.type == "Event"){
+        this.Event = await selectContractInstance(event_artifacts,this.props.contract.address);
+        verified = this.Event.verifyIdentity.call(this.state.userAddress,this.state.userId);
+     }else{
+        this.Transport = await selectContractInstance(transport_artifacts,this.props.contract.address);
+        verified = this.Event.verifyIdentity.call(this.state.userAddress,this.state.userId);
+   }
+   if(verified)
+        this.setState({status: "Identity verified"});
+   else       
+        this.setState({status: "Identity not verified"});
 
-    }else{
-
-    }
 }
 
-withdraw(){
-      if(this.props.type == "Event"){
-        
+async withdraw(){
+    if(this.props.type == "Event"){
+        this.Event = await selectContractInstance(event_artifacts,this.props.contract.address);
+        this.Event.withdraw({from: this.state.account, gasPrice: this.state.gasPrice,
+                                             gas: this.state.gas});
     }else{
-
+        this.Transport = await selectContractInstance(transport_artifacts,this.props.contract.address);
+        this.Transport.withdraw({from: this.state.account, gasPrice: this.state.gasPrice,
+                                             gas: this.state.gas});
     }
 }
 
@@ -73,6 +86,7 @@ userIdChange(e){
                             <button onClick={this.verifyIdentity.bind(this)}>
                                 <h3>Verify Identity</h3>
                             </button>
+                            {this.state.status}
                     </span>
                 </div>
                 <div className="col col-1 tablet-col-1 mobile-full">
