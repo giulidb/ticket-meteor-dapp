@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 import { Events } from '../../api/events.js';
+import {transport} from '../../api/transport.js'
 import Contract from '../Contract.jsx'
 
 export default class Admin extends Component{
@@ -26,13 +27,18 @@ export default class Admin extends Component{
        return EthAccounts.findOne({address: web3.eth.coinbase});
     }
 
-    getContract(){
+    getTransportContract(){
+        return transport.find({}).fetch();
+  }
+
+    getEventContract(){
     return Events.find({}).fetch();
   }
 
     render(){
     
      var account = this.account();
+     var transportContract = this.getTransportContract[0];
 
      return(
                 <ReactCSSTransitionGroup
@@ -58,12 +64,12 @@ export default class Admin extends Component{
                    
                     <h1>Contract Deployed</h1>
                     <ul className="dapp-account-list">
-                        {this.getContract().map((contract)=>{
-                            return <Contract key={contract._id} contract = {contract}/>
+                        {this.getEventContract().map((contract)=>{
+                            return <Contract key={contract._id} contract = {contract} type="Event"/>
                             })}
                      
                      <li>
-                     
+                        <Contract key={transportContract._id} contract = {transportContract} type="Transport"/>
                      </li>       
                    <hr/> 
                    </ul> 

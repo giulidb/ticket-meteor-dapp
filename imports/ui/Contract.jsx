@@ -1,6 +1,8 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import TrackerReact from 'meteor/ultimatejs:tracker-react';
+import transport_artifacts from '../../api/ethereum/truffle/build/contracts/Transport.json'
+
 
 export default class Contract extends TrackerReact(Component) {
 
@@ -9,14 +11,33 @@ export default class Contract extends TrackerReact(Component) {
 
     this.state = {
         userAddress: 'User Address: ',
-        userId: 'User Id'
+        userId: 'User Id',
+        account: "",
+        gasPrice: 100000000000,
+        gas: 2500000,
 
     }
  }
 
-verifyIdentity(){}
+componentWillMount(){
+ this.setState({account: web3.eth.coinbase});
+}
 
-withdraw(){}
+verifyIdentity(){
+    if(this.props.type == "Event"){
+
+    }else{
+
+    }
+}
+
+withdraw(){
+      if(this.props.type == "Event"){
+        
+    }else{
+
+    }
+}
 
 userAddressChange(e){
          this.setState({userAddress: e.target.value});
@@ -26,26 +47,29 @@ userIdChange(e){
          this.setState({userAddress: e.target.value});
 }
 
+
+
    render() {
 
+    console.log(this.props.contract);
+    var wei = web3.eth.getBalance(this.props.contract.address);
 
+    console.log(wei);
         return (
                 
             <li><hr/><div className="row clear">
                 <div className="col col-4 tablet-col-11 mobile-col-1-2">
                     <span className="no-tablet no-mobile">
-                                    <h3>Contract Name: {}</h3>
-                                    <span>Contract Address: {} </span><br/>
+                                    <h3>Contract Name: {this.props.contract.name}</h3>
+                                    <span>Contract Address: <br/>{this.props.contract.address} </span><br/>
                     </span>
                 </div>
                 <div className="col col-3 tablet-col-1 mobile-full">
                     <span className="no-tablet no-mobile">
-                        <span className="no-tablet no-mobile">
                           <input type="text" name="from" value={this.state.userAddress} onChange={this.userAddressChange.bind(this)} /> 
-                        </span>
-                        <span className="no-tablet no-mobile">
+                        <br/>
                           <input type="text" name="from" value={this.state.userId} onChange={this.userIdChange.bind(this)} /> 
-                        </span>
+                        <br/><br/>
                             <button onClick={this.verifyIdentity.bind(this)}>
                                 <h3>Verify Identity</h3>
                             </button>
@@ -64,7 +88,8 @@ userIdChange(e){
                     <span className="no-tablet no-mobile">
                             <button onClick={this.withdraw.bind(this)}>
                                 <h3>Withdraw Revenue</h3>
-                                <span>Contract Balance: {} ETH / {/*EthTools.formatBalance(, '0.00', 'eur')*/}€ </span>
+                                <span>Contract Balance: {/*web3.fromWei(wei,'ether')} ETH 
+                                    / {EthTools.formatBalance(wei, '0.00', 'eur')*/}€ </span>
                             </button>
                     </span>
                 </div>

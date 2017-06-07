@@ -19,6 +19,7 @@ export default class EthereumAccounts extends Component{
   render() {
 
       var account = this.account();
+      console.log(account);
       return (
           <li>
                   <a className="dapp-identicon dapp-small" href=""></a>
