@@ -56,25 +56,6 @@ web3.eth.getAccounts(function(err, accs) {
 
 // Initialize contracts
 var user;
-/*var userRegistryAddress;
-userRegistry.new({ from: fromAddr, gasPrice: gasPrice, gas: gas }).then(function(instance) {
-    user = instance;
-    userRegistryAddress = instance.address;
-    //Meteor.call('register.insertRegister', "UserRegister");
-    Meteor.call('register.updateAddress', "UserRegister", userRegistryAddress);
-    return user.giveRightToUse(account, { from: fromAddr, gasPrice: gasPrice, gas: gas }).then(function() {
-        console.log("Transaction complete!");
-        user.getRight.call(accounts[2], { from: fromAddr, gasPrice: gasPrice, gas: gas }).then(function(value) {
-            console.log("right of" + account + ": " + value);
-        });
-    }).catch(function(e) {
-        console.log(e);
-    })
-
-}).catch(function(e) {
-    console.log(e);
-});*/
-
 var event;
 var ticketPrice1 = web3.toWei(0.70, 'ether');
 var ticketPrice2 = web3.toWei(0.90, 'ether');
@@ -148,7 +129,7 @@ var maxTimestamp = 1800; //01/01/1970 @ 12:30am (UTC) added to current timestamp
 var depositQuota = web3.toWei(0.0032, 'ether');
 Transport.new("Trenitalia", depositQuota, maxTimestamp, { from: fromAddr, gasPrice: gasPrice, gas: gas }).then(function(instance4) {
     console.log(instance4.address + " Transport contract deployed");
-    Meteor.call('contracts.insertRegister', "Transport");
+    // Meteor.call('contracts.insertRegister', "Transport");
     Meteor.call('contracts.updateAddress', "Transport", instance4.address);
 
 }).catch(function(e) {

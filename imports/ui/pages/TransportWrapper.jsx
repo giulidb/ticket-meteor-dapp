@@ -122,7 +122,7 @@ export default class TransportWrapper extends TrackerReact(Component) {
 
      //check if user inserted valid stations name
      if(!this.checkValue()){
-        Bert.alert('Please insert a valid origin and destination station','danger','fixed-top','fa-frown-o');
+        Bert.alert('Please insert a valid origin and destination station','danger','growl-top-right','fa-frown-o');
         return;}
     
         var self = this;
@@ -383,7 +383,7 @@ export default class TransportWrapper extends TrackerReact(Component) {
                     </div>
                     <div className="col col-2 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                          <label>Date: </label><DatePicker dateFormat="YYYY-MM-DD" selected={this.state.startDate} onChange = {this.handleDateChange.bind(this)}/>
+                          <label>Date: </label><DatePicker dateFormat="YYYY-MM-DD" selected={this.state.startDate} minDate={moment().add(1,'days')} onChange = {this.handleDateChange.bind(this)}/>
                         </span>
                     </div>  
                     <div className="col col-1 tablet-col-11 mobtravelTimeile-col-1-2">

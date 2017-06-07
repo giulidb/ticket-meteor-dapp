@@ -103,21 +103,23 @@ contract Transport{
 	
 	
     // Step1 - User make a deposit and request a Ticket	
-   function makeDeposit(string _description, uint256 id_hash)
+   function makeDeposit(string _description,
+                        uint256 _idHash,
+                        uint256 _ticketHash)
                         costs(depositQuota,msg.sender)
                         public payable{
         // check if exists already a non solved request
         if(balances[msg.sender] > 0)
             throw;
         //set Identities
-        Identities[msg.sender] = id_hash;    
+        Identities[msg.sender] = _idHash;    
         // insert a new Pending request
         uint index = TicketsOf[msg.sender].length++;
         Ticket ticket = TicketsOf[msg.sender][index];
         ticket.requestedTime = now;
         ticket.description = _description;
         ticket.status = "requested";
-        ticket.ticketHash = sha3(msg.sender,_description);
+        ticket.ticketHash = _ticketHash;
         balances[msg.sender] += depositQuota;
         DepositDone(msg.sender, depositQuota, ticket.ticketHash, now);
         }
@@ -137,7 +139,7 @@ contract Transport{
                             public{
         
         Ticket ticket = TicketsOf[addr][index]; 
-        if(ticket.ticketHash != sha3(addr,_description))
+        if(ticket.ticketHash != sha3(_description,_price,_expirationTime,_maxUses))
             throw;
         
         // Configure the ticket
@@ -149,7 +151,7 @@ contract Transport{
         ticket.price = _price;
         ticket.status = "emitted";
         // log this event
-        TicketConfigured(addr, index, sha3(addr,_description), now);
+        TicketConfigured(addr, index, ticket.ticketHash, now);
         
     }
 
@@ -174,8 +176,7 @@ contract Transport{
             throw;
 	    Ticket ticket = TicketsOf[msg.sender][index];
 	    // enum type   
-	   if((ticket.t == TicketTypes.single && ticket.numUsed >= 1) ||
-                (ticket.t == TicketTypes.carnet && ticket.numUsed >= ticket.maxUses))
+	   if((ticket.t != TicketTypes.subscription && ticket.numUsed >= ticket.maxUses))
                 throw;
         
         ticket.numUsed++;  
@@ -203,7 +204,7 @@ contract Transport{
     }
 
 
-    // Withdraw deposit if DT does not retrive the ticket in time
+    // Withdraw deposit if DT does not emitt the ticket in time
     function withdrawDeposit(uint index) onlyValue
                                     onlyAfter(TicketsOf[msg.sender][index].requestedTime + maxTime)
                                     returns(bool){

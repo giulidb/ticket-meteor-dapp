@@ -80,10 +80,10 @@ export default class Ticket extends Component {
                                                     {from: this.state.account, gasPrice: this.state.gasPrice,
                                                      gas: this.state.gas, value: web3.toWei(this.state.total_price,'ether')});
             console.log(res);
-            Bert.alert('Congratulations! Your transaction has been successful!','success','fixed-top','fa-smile-o');
+            Bert.alert('Congratulations! Your transaction has been successful!','success','growl-top-right','fa-smile-o');
             this.getMyTickets();
             this.refreshValue();
-            ;
+            
     }
 
     async use(){
@@ -91,7 +91,7 @@ export default class Ticket extends Component {
             const TicketsList = await selectContractInstance(event_artifacts,this.props.contract_address);
             await TicketsList.useTicket(this.props.index,{from: this.state.account, gasPrice: this.state.gasPrice,
                                                      gas: this.state.gas});
-            Bert.alert('Congratulations! Your transaction has been successful!','success','fixed-top','fa-smile-o');
+            Bert.alert('Congratulations! Your transaction has been successful!','success','growl-top-right','fa-smile-o');
             this.getMyTickets();
            
 
@@ -102,13 +102,14 @@ export default class Ticket extends Component {
             var own = this.state.MyTickets;
 
             if(own > 0){
+
+                 var used = this.state.used ? "Check-in done" : ""
                 return (
-            
-                <div className="col col-3 tablet-col-1 mobile-full">
+                    <div className="col col-3 tablet-col-1 mobile-full">
                         <span className="no-tablet no-mobile">
                                 <button onClick={this.use.bind(this)} disabled = {this.state.used}>       
                                     <h3>Use</h3>
-                                    Total Own: {own} 
+                                    Total Own: {own} <br/> {used}
                                 </button>
                         </span>
                     </div>

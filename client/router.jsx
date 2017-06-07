@@ -5,7 +5,7 @@ import {MainLayout} from '../imports/ui/layouts/MainLayout.jsx';
 import EventWrapper from '../imports/ui/pages/EventWrapper.jsx';
 import TransportWrapper from '../imports/ui/pages/TransportWrapper.jsx';
 
-import About from '../imports/ui/pages/About.jsx'
+import Admin from '../imports/ui/pages/Admin.jsx'
 import EventDetailed from '../imports/ui/pages/EventDetailed.jsx'
 import TrainDetailed from '../imports/ui/pages/TrainDetailed.jsx'
 
@@ -31,13 +31,13 @@ FlowRouter.route('/transportServices', {
 });
 
 
-FlowRouter.route('/about', {
+FlowRouter.route('/admin', {
     action(){
     if(!Meteor.userId()){
-        Bert.alert("Pleas login to have access to this area", 'danger','fixed-top','fa-frown-o');
+        Bert.alert("Pleas login to have access to this area", 'danger','growl-top-right','fa-frown-o');
     }else{
         mount(MainLayout,{
-        content: (<About/>)
+        content: (<Admin/>)
         })}
     }
 });
@@ -45,7 +45,7 @@ FlowRouter.route('/about', {
 FlowRouter.route('/myAccounts', {
     action(){
     if(!Meteor.userId()){
-        Bert.alert("Pleas login to have access to this area", 'danger','fixed-top','fa-frown-o');
+        Bert.alert("Pleas login to have access to this area", 'danger','growl-top-right','fa-frown-o');
     }else{
         mount(MainLayout,{
         content: (<AccountsSettings/>)
@@ -56,16 +56,22 @@ FlowRouter.route('/myAccounts', {
 
 FlowRouter.route('/events/:id', {
     action(params){
-        mount(MainLayout,{
-            content: (<EventDetailed id={params.id}/>)
-        })
+        if(!Meteor.userId()){
+            Bert.alert("Pleas login to have access to this area", 'danger','growl-top-right','fa-frown-o');
+        }else{
+            mount(MainLayout,{
+                content: (<EventDetailed id={params.id}/>)
+            })}
     }
 });
 
 FlowRouter.route('/trains/:id', {
     action(params){
-        mount(MainLayout,{
-            content: (<TrainDetailed id={params.id}/>)
-        })
+          if(!Meteor.userId()){
+                Bert.alert("Pleas login to have access to this area", 'danger','growl-top-right','fa-frown-o');
+            }else{
+                mount(MainLayout,{
+                    content: (<TrainDetailed id={params.id}/>)
+                })}
     }
 });

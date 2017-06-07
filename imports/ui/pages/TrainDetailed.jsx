@@ -180,11 +180,14 @@ componentDidMount(){
     console.log(addr[0].address);
     console.log(this.state.deposit.valueOf());
     console.log(this.state.Train);
-    const res = await  this.Transport.makeDeposit(JSON.stringify(this.state.Train), web3.sha3(Session.get("FacebookId")),
+    var max_uses = (this.state.Train.ticketType == "10 Tickets Carnet") ? 10 : ((this.state.Train.ticketType == "Simple Ticket") ? 1 :"");
+    const res = await  this.Transport.makeDeposit(JSON.stringify(this.state.Train), 
+                                                  web3.sha3(Session.get("FacebookId")),
+                                                  web3.sha3(JSON.stringify(this.state.Train),this.state.Train.price,this.state.Train.expirationDate,max_uses),
                                             {from: this.state.account, gasPrice: this.state.gasPrice,
                                              gas: this.state.gas, value: this.state.deposit.valueOf()});
     console.log(res);
-    Bert.alert('Congratulations! Your transaction has been successful!','success','fixed-top','fa-smile-o');
+    Bert.alert('Congratulations! Your transaction has been successful!','success','growl-top-right','fa-smile-o');
     var numTicket = await this.Transport.numTickets.call(this.state.account);
     Session.set("Index",numTicket.valueOf()-1);
     console.log(Session.get("Index"));
@@ -207,7 +210,7 @@ componentDidMount(){
                                             {from: this.state.account, gasPrice: this.state.gasPrice,
                                              gas: this.state.gas, value: (this.state.Train.price - this.state.deposit.valueOf())});
     console.log(res);
-    Bert.alert('Congratulations! Your transaction has been successful!','success','fixed-top','fa-smile-o');
+    Bert.alert('Congratulations! Your transaction has been successful!','success','growl-top-right','fa-smile-o');
 
 } 
 
@@ -230,7 +233,7 @@ async use(){
                                             {from: this.state.account, gasPrice: this.state.gasPrice,
                                              gas: this.state.gas});
     console.log(res);
-    Bert.alert('Congratulations! Your convalidation has been successful!','success','fixed-top','fa-smile-o');
+    Bert.alert('Congratulations! Your convalidation has been successful!','success','growl-top-right','fa-smile-o');
 }
 
 async refund() {
@@ -242,7 +245,7 @@ async refund() {
                                             {from: this.state.account, gasPrice: this.state.gasPrice,
                                              gas: this.state.gas});
     console.log(res);
-    Bert.alert('Congratulations! Your deposit has been credited on your account!','success','fixed-top','fa-smile-o');
+    Bert.alert('Congratulations! Your deposit has been credited on your account!','success','growl-top-right','fa-smile-o');
 
     } 
 
@@ -295,7 +298,7 @@ async refund() {
                           <label>Service Level: </label><h3>{this.state.Train.class}</h3>
                         </span>
                     </div>
-                    <div className="col col-3 tablet-col-11 mobile-col-1-2">
+                    <div className="col col-2 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
                           <label>Ticket Type: </label><h3>{this.state.Train.ticketType}</h3>
                         </span>

@@ -45,7 +45,7 @@ export default class AccountsSettings extends Component {
         // Simulate server Transaction
         console.log(EthAccounts.findOne({address: Session.get('account')}));
         Meteor.call('sendEther',Session.get('account'),EthTools.toWei(this.refs.total.value,"eur"));
-        Bert.alert('Congratulations! Send Ethers bought correctly','success','growl-top-right','fa-smile-o');
+        Bert.alert('Congratulations! Ethers bought correctly','success','growl-top-right','fa-smile-o');
         console.log("Account: "+Session.get('account')+" balance: ");
         console.log(EthAccounts.findOne({address: Session.get('account')}));
         console.log(EthAccounts.find({}).fetch());
@@ -132,6 +132,7 @@ export default class AccountsSettings extends Component {
                         </span>
                     </div>      
                  </div>   
+                 <br/><br/><hr/>
                  
          </ReactCSSTransitionGroup>
 

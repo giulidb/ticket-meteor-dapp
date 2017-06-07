@@ -14,19 +14,28 @@ export const MainLayout = ({content}) => (
                         <li><a href="/"><span><h3>Events</h3></span></a></li>
                         <li><a href="/transportServices"><span><h3>Transport</h3></span></a></li>
                         <li><a href="/myAccounts"><span><h3>Exchange</h3></span></a></li>
-                        <li><a href="/about"><span><h3>About</h3></span></a></li>
-                        <li><a href=""><EthereumAccounts/></a></li>
-                        <li><AccountsUI/></li>             
+                        <li><a href="/admin"><span><h3>Admin</h3></span></a></li>
+                        <li><a href=""></a></li>             
                     </ul>
                 </nav>
+                
+               
         </header>
+        
 
         <div className="dapp-flex-content">
+            <aside className="dapp-aside">
+                 <ul className="dapp-account-list">      
+                <li><a className="dapp-identicon dapp-small" href=""></a><h3>Facebook Account</h3><AccountsUI/></li>
+                <EthereumAccounts/>
+               </ul> 
+            </aside>
             <main className="dapp-content">
                 {content}            
             </main>
 
             <aside className="dapp-actionbar">
+             
             </aside>
         </div>
    

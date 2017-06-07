@@ -44,15 +44,11 @@ export default class EventWrapper extends TrackerReact(Component) {
 
 
   render() {
-
-    if(!this.state.subscription.events.ready)
-        return(
-            <div className="loader">Loading...</div>
-          )
           
     return (
           <ReactCSSTransitionGroup
              component="div"
+             className = {this.events().length == 0 ? "loader" : ""}
              transitionName="route"
              transitionEnterTimeout={500}
              transitionLeaveTimeout={300}
@@ -66,6 +62,7 @@ export default class EventWrapper extends TrackerReact(Component) {
                   }
                  )}
              </ul> 
+             <br/><hr/>
          </ReactCSSTransitionGroup>
 
     );

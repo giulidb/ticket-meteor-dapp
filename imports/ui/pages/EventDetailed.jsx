@@ -40,8 +40,6 @@ export default class EventDetailed extends TrackerReact(Component){
     this.TicketsList = await selectContractInstance(event_artifacts,addr);
     const TicketItems = await this.getTickets();
     this.setState( {Tickets: TicketItems} );
-    const right = await this.TicketsList.getRight.call(Session.get('account'));
-    console.log(Session.get('account')+ ": "+right );
 }
 
   componentWillUnmount(){
