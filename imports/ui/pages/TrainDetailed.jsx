@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 import TrackerReact from 'meteor/ultimatejs:tracker-react';
 import {transport} from '../../api/transport.js'
-
 import {Meteor} from 'meteor/meteor';
 
 
@@ -44,7 +43,8 @@ export default class TrainDetailed extends TrackerReact(Component){
   }
 
   componentWillMount(){
-            this.setState({Train: Session.get("trainTicket")});     
+            this.setState({Train: Session.get("trainTicket")});   
+            console.log(this.state.Train);  
 }
 
 
@@ -183,7 +183,7 @@ componentDidMount(){
     var max_uses = (this.state.Train.ticketType == "10 Tickets Carnet") ? 10 : ((this.state.Train.ticketType == "Simple Ticket") ? 1 :"");
     const res = await  this.Transport.makeDeposit(JSON.stringify(this.state.Train), 
                                                   web3.sha3(Session.get("FacebookId")),
-                                                  web3.sha3(JSON.stringify(this.state.Train),this.state.Train.price,this.state.Train.expirationDate,max_uses),
+                                                  this.state.Train.price,this.state.Train.expirationDate,max_uses,
                                             {from: this.state.account, gasPrice: this.state.gasPrice,
                                              gas: this.state.gas, value: this.state.deposit.valueOf()});
     console.log(res);

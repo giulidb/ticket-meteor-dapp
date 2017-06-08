@@ -27,7 +27,8 @@ Meteor.methods({
         Meteor.setTimeout(function() {
             var addr = transport.find({}).fetch();
             console.log(addr[0].address);
-            var max_uses = (ticketDescription.ticketType == "10 Tickets Carnet") ? 10 : "";
+            var max_uses = (ticketDescription.ticketType == "10 Tickets Carnet") ? 10 : ((ticketDescription.ticketType == "Simple Ticket") ? 1 : "");
+
             var ticketType;
             switch (ticketDescription.ticketType) {
                 case "Simple Ticket":
@@ -50,7 +51,7 @@ Meteor.methods({
                     return instance.numTickets.call(userAddr).then(function(index) {
                         console.log("call numTickets callback")
                         console.log(index.valueOf())
-                        return instance.configureTicket(userAddr, JSON.stringify(ticketDescription), ticketType,
+                        return instance.configureTicket(userAddr, ticketType,
                             index.valueOf() - 1, ticketDescription.expirationDate, max_uses, ticketDescription.price, { from: fromAddr, gasPrice: gasPrice, gas: gas }).then(function(res) {
                             console.log("Transaction configure ticket done!");
                         });

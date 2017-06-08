@@ -105,7 +105,9 @@ contract Transport{
     // Step1 - User make a deposit and request a Ticket	
    function makeDeposit(string _description,
                         uint256 _idHash,
-                        uint256 _ticketHash)
+                        uint _price,
+                        uint _expirationTime,
+                        uint _maxUses)
                         costs(depositQuota,msg.sender)
                         public payable{
         // check if exists already a non solved request
@@ -119,7 +121,7 @@ contract Transport{
         ticket.requestedTime = now;
         ticket.description = _description;
         ticket.status = "requested";
-        ticket.ticketHash = _ticketHash;
+        ticket.ticketHash = sha3(_price,_expirationTime,_maxUses);
         balances[msg.sender] += depositQuota;
         DepositDone(msg.sender, depositQuota, ticket.ticketHash, now);
         }
@@ -128,7 +130,6 @@ contract Transport{
 	// Step2 - After Step1 Owner can configure the ticket for a certain user
     // or invalidate it if user not has inserted the correct price
     function configureTicket(address addr,
-                             string _description,
                              uint _t,
                              uint index,
                              uint _expirationTime, 
@@ -139,7 +140,7 @@ contract Transport{
                             public{
         
         Ticket ticket = TicketsOf[addr][index]; 
-        if(ticket.ticketHash != sha3(_description,_price,_expirationTime,_maxUses))
+        if(ticket.ticketHash != sha3(_price,_expirationTime,_maxUses))
             throw;
         
         // Configure the ticket
@@ -194,6 +195,8 @@ contract Transport{
     /// user has not bought any tickets.
     function getTicket(address user, uint i) public returns(bytes,uint,uint,bytes32,uint){
 
+            if(i < 0 || i > TicketsOf[user].length)
+                return;
             bytes descriptions = bytes(TicketsOf[user][i].description);
             uint requestedTime = TicketsOf[user][i].requestedTime;
             uint emissionTimes = TicketsOf[user][i].emissionTime;

@@ -135,3 +135,4 @@ Transport.new("Trenitalia", depositQuota, maxTimestamp, { from: fromAddr, gasPri
 }).catch(function(e) {
     console.log(e);
 });
+//contractAddress = "0xcffb1bbf5c1fbb84d197e8bc3cdd0976ead0e402"

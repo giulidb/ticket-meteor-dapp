@@ -19,6 +19,7 @@
     "react-mounter": "^1.2.0",
     "react-numeric-input": "^2.0.7",
     "react-select": "^1.0.0-rc.5",
+    "solidity-sha3": "^0.4.1",
     "truffle-contract": "^2.0.0",
     "truffle-default-builder": "^2.0.0"
   }
