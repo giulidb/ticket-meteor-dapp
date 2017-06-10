@@ -1,19 +1,15 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-
 import TrackerReact from 'meteor/ultimatejs:tracker-react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
-
 import { Events } from '../../api/events.js';
 import Event from '../Event.jsx';
 import Ticket from '../Ticket.jsx';
-
 import {Meteor} from 'meteor/meteor';
-
-
 // Ethereum libraries and contracts
 import web3, { selectContractInstance, mapReponseToJSON } from '../../api/ethereum/web3.js';
 import event_artifacts from '../../api/ethereum/truffle/build/contracts/Event.json'
+
 
 export default class EventDetailed extends TrackerReact(Component){
   
@@ -25,7 +21,8 @@ export default class EventDetailed extends TrackerReact(Component){
         events: Meteor.subscribe('allEvents')
        },
        Tickets: [],
-       address: ""
+       address: "",
+       loading: true
     }
   }
 
@@ -67,7 +64,10 @@ export default class EventDetailed extends TrackerReact(Component){
           )
         }
 
-        this.loadContract(event.address);
+        if(this.state.loading){
+            this.loadContract(event.address);
+            this.setState({loading: false});
+        }
 
         return(
                 <ReactCSSTransitionGroup

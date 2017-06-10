@@ -19,10 +19,7 @@ Meteor.methods({
     'REST.computePrice': function(duration, service, train, adults, children, type) {
         var hours = parseInt(duration.split(':')[0]);
         var minutes = parseInt(duration.split(':')[1]);
-        console.log(hours*60);
-        console.log(minutes);
         var price = 0.10*(hours * 60 + minutes);
-        console.log("intial price: " + price);
         if (train != "REG" && train != "RV")
             price *= 4;
         switch (type) {
@@ -49,7 +46,6 @@ Meteor.methods({
         price *= adults;
         if (service == "1° Class")
             price *= 1.50;
-        console.log("final price: " + price);
         return (price + partialPrice).toFixed(2);
 
     }

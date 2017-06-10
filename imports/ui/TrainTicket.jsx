@@ -15,8 +15,8 @@ export default class TrainTicket extends Component {
         this.state = {
 
             account: Session.get('account'),
-            gasPrice: 100000000000,
-            gas: 2500000,
+            gasPrice: Session.get('gasPrice'),
+            gas: Session.get('gas'),
       
         }
         

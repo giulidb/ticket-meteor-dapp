@@ -14,16 +14,18 @@ export default class Contract extends TrackerReact(Component) {
         userAddress: 'User Address: ',
         userId: 'User Id: ',
         ticketId: 'Ticket Id:',
-        account: "",
-        gasPrice: 100000000000,
-        gas: 2500000,
+        account: Session.get('coinbase'),
+        gasPrice: Session.get('gasPrice'),
+        gas: Session.get('gas'),
         statusIdentity: "",
         statusTicket: ""
     }
  }
 
-componentWillMount(){
- this.setState({account: web3.eth.coinbase});
+async componentWillMount(){
+    var balance = await web3.eth.getBalance(this.props.contract.address).valueOf();
+    this.setState({wei: balance});
+
 }
 
 async verifyIdentity(){
@@ -54,6 +56,9 @@ async withdraw(){
         this.Transport.withdraw({from: this.state.account, gasPrice: this.state.gasPrice,
                                              gas: this.state.gas});
     }
+    
+    var balance = await web3.eth.getBalance(this.props.contract.address).valueOf();
+    this.setState({wei: balance});
 }
 
 async getTicket(){
@@ -67,17 +72,24 @@ async getTicket(){
         if(Ticket[0].valueOf() > 0){
             var used = (Ticket[1]) ? " - Used" : " - Not Used";
         statusTemp += used;    
+        this.setState({statusTicket: statusTemp});
         }
             
 
      }else{
+        var self = this;
         this.Transport = await selectContractInstance(transport_artifacts,this.props.contract.address);
-        Ticket = await this.Transport.getTicket.call(this.state.userAddress,this.state.ticketId);
-        console.log(Ticket);
-        statusTemp = "Ticket status: " + web3.toUtf8(Ticket[3]).trim();
+        this.Transport.getTicket.call(this.state.userAddress,this.state.ticketId).then(
+            function(Ticket){
+                self.setState({statusTicket: "Ticket status: " + web3.toUtf8(Ticket[3]).trim()});
+            }
+        ).catch(function(e){
+                 self.setState({statusTicket: "Ticket not valid"});
+        });
+
    }
 
-    this.setState({statusTicket: statusTemp});
+  
 
     
 
@@ -100,18 +112,17 @@ ticketIdChange(e){
 
    render() {
 
-    var wei = web3.eth.getBalance(this.props.contract.address).valueOf();
         return (
-                
-            <li><hr/><div className="row clear">
+              <div>  
+            <li><div className="row clear">
                 <div className="col col-4 tablet-col-11 mobile-col-1-2">
                     <span className="no-tablet no-mobile">
                                     <h3>Contract Name: {this.props.contract.name}</h3>
                                     <span>Contract Address: <br/>{this.props.contract.address} </span><br/><br/><br/>
                                      <button onClick={this.withdraw.bind(this)}>
                                         <h3>Withdraw Revenue</h3>
-                                        <span>Contract Balance: {web3.fromWei(wei,'ether')} ETH 
-                                            / {EthTools.formatBalance(wei, '0.00', 'eur')}€ </span>
+                                        <span>Contract Balance: {web3.fromWei(this.state.wei,'ether')} ETH 
+                                            / {EthTools.formatBalance(this.state.wei, '0.00', 'eur')}€ </span>
                                     </button>
                     </span>
                 </div>
@@ -141,6 +152,8 @@ ticketIdChange(e){
                 </div>
              </div>
         </li>
+        <hr/>
+        </div>
     );
 
   }

@@ -11,11 +11,11 @@ import moment from 'moment';
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
 import 'react-datepicker/dist/react-datepicker.css';
-
 // Ethereum libraries and contracts
 import web3, { selectContractInstance, mapReponseToJSON } from '../../api/ethereum/web3.js';
 import transport_artifacts from '../../api/ethereum/truffle/build/contracts/Transport.json'
 import {transport} from '../../api/transport.js'
+
 
 export default class TransportWrapper extends TrackerReact(Component) {
 
@@ -28,8 +28,8 @@ export default class TransportWrapper extends TrackerReact(Component) {
             },
         results: [],
         account: Session.get('account'),
-        gasPrice: 100000000000,
-        gas: 2500000,
+        gasPrice: Session.get('gasPrice'),
+        gas: Session.get('gas'),
         startDate: moment(),
         origin: "from:",
         destination: "to: ",
@@ -102,7 +102,6 @@ export default class TransportWrapper extends TrackerReact(Component) {
   handleData(){
       console.log(this.state.originId);
       console.log(this.state.destId);
-
       var d =  new Date(this.state.startDate);
       var date = d.getFullYear() + '-' + ("0" + (d.getMonth() + 1)).slice(-2) + '-' + ("0" + (d.getDate())).slice(-2) + 'T' + ("0" + (this.refs.hour.state.value + 1)).slice(-2)+':00:00'
       var link = 'http://www.viaggiatreno.it/viaggiatrenonew/resteasy/viaggiatreno/soluzioniViaggioNew/' + this.state.originId.replace(/(?:\r\n|\r|\n)/g, '') + '/' + this.state.destId.replace(/(?:\r\n|\r|\n)/g, '') + '/' + date;
@@ -130,10 +129,8 @@ export default class TransportWrapper extends TrackerReact(Component) {
         console.log(link);
         this.setState({loadingResults: true});
         Meteor.call("RESTcall", link, (error, response)=>{
-          console.log("callback");
                  var trains = [];
                  var res = JSON.parse(response.content)
-                 console.log(res);
                  var solutions = res.soluzioni;
                  for(var i = 0; i < solutions.length; i++){
                     var search = true;
@@ -167,12 +164,11 @@ export default class TransportWrapper extends TrackerReact(Component) {
                         
             }
 
-            console.log(trains);
             self.setState({results: trains});
             this.setState({loadingResults: false});
             if(this.state.results.length == 0)
                     Bert.alert('No solution matches your request!','warning','fixed-top','fa-frown-o');
-            console.log("fine callback");       
+            console.log("REST call return");       
       });
    
   }
@@ -243,7 +239,6 @@ export default class TransportWrapper extends TrackerReact(Component) {
   }
 
     seeTickets(){
-        console.log("seeTickets");
         this.setState({seeTicket: !this.state.seeTicket});
         this.setState({buttonName: (this.state.seeTicket ? "Hide Tickets" : "See Tickets")});
         this.setState({loadingTickets: "true"});
@@ -275,7 +270,6 @@ export default class TransportWrapper extends TrackerReact(Component) {
             status.push(TicketItemResp[3])
         }
         
-    //    console.log(TicketItemsResp);
         TicketItemsResp.push(descriptions,requestedTime,emissionTimes,status);
         const TicketItems = mapReponseToJSON(TicketItemsResp,['description','requestedTime','emissionTime','status'],"arrayOfObject");
         this.setState({Tickets: TicketItems});}
@@ -283,17 +277,14 @@ export default class TransportWrapper extends TrackerReact(Component) {
  }
   
   logChangeTrain(val){
-      console.log(val);
       this.setState({selectedTrain: val});
   }
 
   logChangeClass(val){
-      console.log(val);
       this.setState({selectedClass: val});
   }
 
   logChangeTicket(val){
-      console.log(val);
       this.setState({selectedTicket: val});
   }
 

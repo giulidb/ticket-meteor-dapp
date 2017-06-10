@@ -1,7 +1,0 @@
-[
-    { name: "Arcade Fire", desc: "Gli Arcade Fire tornano in Italia a tre anni dall’ultimo trionfale tour del precedente album “The Reflektor”.", type: "concert", location: "Ippodromo del Visarno
-Viale del Visarno 14, 50144 FIRENZE" , date: "2017-07-19T21:00:00.00",address: "0xdbCe86f51D7971cff5a7C92b3D694A00D0702D1c" },
-    { name: "Eddie Vedder", desc: "Frontman dei Pearl Jam dal 1990, Eddie Vedder ha pubblicato da solista la meravigliosa colonna sonora del film “Into the Wild” nel 2007, e ha vinto un Golden Globe per il brano “Guaranteed” nel 2011; nel 2012 il suo “Ukulele Songs” ha ricevuta la nomination per Best Folk Album ai Grammy Awards.
-", type: "concert", location: "Ippodromo del Visarno
-Viale del Visarno 14, 50144 FIRENZE" , date: "2017-06-24T21:00:00.00",address: "0xdbCe86f51D7971cff5a7C92b3D694A00D0702D1c" }
-]

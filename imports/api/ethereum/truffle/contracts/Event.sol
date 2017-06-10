@@ -35,12 +35,11 @@ contract Event{
 
     }
     
-    // Struct of a bulk of one or more tickets owned by some user
+    // Struct of a bulk of one or more tickets owned by an user
     struct Ticket{
         uint num;
         bool used;   
     }
-
 
 
     // Use of an event to pass along return values from contracts, 
@@ -82,6 +81,11 @@ contract Event{
     //This means that the function will be executed
     //only if incomes > 0
     modifier onlyValue() { if(incomes  > 0 ) _; else throw; }
+
+
+    /// this means that the function can be called only before a Timestamp
+    modifier onlyBefore(uint Timestamp){ if(now <= Timestamp - 1 hours) _; else throw;}
+
       
 	
 	/// This is the constructor whose code is
@@ -111,7 +115,7 @@ contract Event{
     
 
 	function buyTicket(uint _type,uint _num, uint256 _hash)
-       costs(compute_price(_type,_num),msg.sender) public payable{
+       costs(compute_price(_type,_num),msg.sender) onlyBefore(eventTime) public payable{
 	    
        // Sending back the money by simply using
        // organizer.send(tickePrice) is a security risk

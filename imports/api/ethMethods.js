@@ -5,10 +5,6 @@ import transport_artifacts from './ethereum/truffle/build/contracts/Transport.js
 import { transport } from './transport.js';
 import { default as contract } from 'truffle-contract'
 
-// Transactions Parameters
-const fromAddr = web3.eth.coinbase;
-const gasPrice = 100000000000;
-const gas = 2500000;
 var provider;
 if (typeof web3 !== 'undefined') {
     web3 = new Web3(web3.currentProvider);
@@ -20,13 +16,17 @@ if (typeof web3 !== 'undefined') {
     provider = new Web3.providers.HttpProvider('http://localhost:8545');
 }
 
+// Transactions Parameters
+const fromAddr = web3.eth.coinbase;
+const gasPrice =  100000000000;
+const gas =  2500000;
+
 
 Meteor.methods({
 
     'configureTicket' (ticketDescription, userAddr) {
         Meteor.setTimeout(function() {
             var addr = transport.find({}).fetch();
-            console.log(addr[0].address);
             var max_uses = (ticketDescription.ticketType == "10 Tickets Carnet") ? 10 : ((ticketDescription.ticketType == "Simple Ticket") ? 1 : "");
 
             var ticketType;
@@ -47,10 +47,7 @@ Meteor.methods({
             Transport.at(addr[0].address).then(
                 function(value) {
                     instance = value;
-                    console.log("Good");
                     return instance.numTickets.call(userAddr).then(function(index) {
-                        console.log("call numTickets callback")
-                        console.log(index.valueOf())
                         return instance.configureTicket(userAddr, ticketType,
                             index.valueOf() - 1, ticketDescription.expirationDate, max_uses, ticketDescription.price, { from: fromAddr, gasPrice: gasPrice, gas: gas }).then(function(res) {
                             console.log("Transaction configure ticket done!");
@@ -62,8 +59,15 @@ Meteor.methods({
                 console.log(e);
             });
 
-        }, 10000);
+        }, 60000);
 
+    },
+
+     'sendEther' (userAddress, amount) {
+        Meteor.setTimeout(function() {
+            web3.eth.sendTransaction({ from: fromAddr, to: userAddress, value: amount });
+            console.log("from: " + fromAddr + " to: " + userAddress + " amount: " + amount);
+         }, 60000);
     }
 
 });

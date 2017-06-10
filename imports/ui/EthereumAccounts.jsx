@@ -8,25 +8,28 @@ import userRegistry_artifacts from '../api/ethereum/truffle/build/contracts/user
 
 
 // Contract component - represents a single todo item
-export default class EthereumAccounts extends Component{
+export default class EthereumAccounts extends Component{   
 
-  account(){
-       EthAccounts.init(); 
-       return EthAccounts.findOne({address: Session.get('account')});
-  }
+async getBalance(){
+    
+    if(Session.get('account')){
+        var balance = await web3.eth.getBalance(Session.get('account')).valueOf();
+        Session.set('accountBalance',balance);}
+    }
 
 
   render() {
 
-      var account = this.account();
-      console.log(account);
+    this.getBalance();
+    var balance = !(Session.get('accountBalance')) ? 0 : Session.get('accountBalance');
+ 
       return (
           <li>
                   <a className="dapp-identicon dapp-small" href=""></a>
                   <h3>Ethereum Account</h3>
-                  <span>{account.address}</span><br/>
-                  <span>{EthTools.formatBalance(account.balance, '0.00 unit', 'ether')}
-                   / {EthTools.formatBalance(account.balance, '0.00', 'eur')} €</span>       
+                  <span>{Session.get('account')}</span><br/>
+                  <span>{EthTools.formatBalance(balance, '0.00 unit', 'ether')}
+                   / {EthTools.formatBalance(balance, '0.00', 'eur')} €</span>       
         </li>
         );
       }

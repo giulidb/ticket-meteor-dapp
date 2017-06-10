@@ -1,15 +1,12 @@
 import React from 'react';
 import {mount} from 'react-mounter';
 import {MainLayout} from '../imports/ui/layouts/MainLayout.jsx';
-
 import EventWrapper from '../imports/ui/pages/EventWrapper.jsx';
 import TransportWrapper from '../imports/ui/pages/TransportWrapper.jsx';
-
 import Admin from '../imports/ui/pages/Admin.jsx'
 import EventDetailed from '../imports/ui/pages/EventDetailed.jsx'
 import TrainDetailed from '../imports/ui/pages/TrainDetailed.jsx'
-
-import AccountsSettings from '../imports/ui/pages/AccountsSettings.jsx'
+import Exchange from '../imports/ui/pages/Exchange.jsx'
 import {Meteor} from 'meteor/meteor'
 import '../imports/startup/accounts-config.js'
 
@@ -42,13 +39,13 @@ FlowRouter.route('/admin', {
     }
 });
 
-FlowRouter.route('/myAccounts', {
+FlowRouter.route('/exchange', {
     action(){
     if(!Meteor.userId()){
         Bert.alert("Pleas login to have access to this area", 'danger','growl-top-right','fa-frown-o');
     }else{
         mount(MainLayout,{
-        content: (<AccountsSettings/>)
+        content: (<Exchange/>)
         })}
     }
 });

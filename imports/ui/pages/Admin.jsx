@@ -20,64 +20,63 @@ export default class Admin extends TrackerReact(Component){
         }
     }
 
+    async getBalance(){
+        if(Session.get('coinbase')){
+                var balance = await web3.eth.getBalance(Session.get('coinbase')).valueOf();
+                Session.set('ownerBalance',balance);}
+     }
+
     componentWillUnmount(){
         this.state.subscription.events.stop();
         this.state.subscription.contract.stop();
   }
-
-    account(){
-       EthAccounts.init(); 
-       return EthAccounts.findOne({address: web3.eth.coinbase});
-    }
 
     getTransportContract(){
         return transport.find({}).fetch();
   }
 
     getEventContract(){
-    return Events.find({}).fetch();
+        return Events.find({}).fetch();
   }
 
     render(){
     
-     var account = this.account();
-     var transportContract = this.getTransportContract()[0];
-     if(!transportContract)
-        return <div className = "loader" ></div>
-     return(
-                <ReactCSSTransitionGroup
-                  component="div"
-                  transitionName="route"
-                  transitionEnterTimeout={500}
-                  transitionLeaveTimeout={300}
-                  transitionAppear={true}
-                  transitionAppearTimeout={500}>
-                    <h1>Contracts Resume</h1>
-                    <ul className="dapp-account-list">
-                    <li><a className="dapp-identicon dapp-small" href=""></a>
-                            <h3>Owner Account</h3>
-                            <span>{account.address}</span><br/>
-                            <span>{EthTools.formatBalance(account.balance, '0.00 unit', 'ether')}
-                            / {EthTools.formatBalance(account.balance, '0.00', 'eur')} €</span>
-                    </li>
-                    </ul>
+        var transportContract = this.getTransportContract()[0];
+        
+        if(!transportContract)
+            return <div className = "loader" ></div>
+        
+        this.getBalance();
+        var balance = !(Session.get('ownerBalance')) ? 0 : Session.get('ownerBalance');
+   
+        return(
+                    <ReactCSSTransitionGroup
+                    component="div"
+                    transitionName="route"
+                    transitionEnterTimeout={500}
+                    transitionLeaveTimeout={300}
+                    transitionAppear={true}
+                    transitionAppearTimeout={500}>
+                        <h1>Contracts Resume</h1>
+                        <ul className="dapp-account-list">
+                            <li><a className="dapp-identicon dapp-small" href=""></a>
+                                    <h3>Owner Account</h3>
+                                    <span>{Session.get('coinbase')}</span><br/>
+                                    <span>{EthTools.formatBalance(Session.get('ownerBalance'), '0.00 unit', 'ether')}
+                                    / {EthTools.formatBalance(Session.get('ownerBalance'), '0.00', 'eur')} €</span>
+                            </li>
+                        </ul>
 
-                    <br/>           
-                    <hr/>
-                    <br/>
-                   
-                    <h1>Contracts Deployed</h1>
-                    <ul className="dapp-account-list">
-                        {this.getEventContract().map((contract)=>{
-                            return <Contract key={contract._id} contract = {contract} type="Event"/>
-                            })}
-                     
-            
-                        <Contract key={transportContract._id} contract = {transportContract} type="Transport"/>
-                      
-                   <hr/> 
-                   </ul> 
-                </ReactCSSTransitionGroup>
+                        <br/><hr/><br/>
+                        
+                        <h1>Contracts Deployed</h1>
+                        <ul className="dapp-account-list">
+                            {this.getEventContract().map((contract)=>{
+                                    return <Contract key={contract._id} contract = {contract} type="Event"/>
+                                    })}
+                            <Contract key={transportContract._id} contract = {transportContract} type="Transport"/>
+                        </ul> 
+                    </ReactCSSTransitionGroup>
                 
         )
     }

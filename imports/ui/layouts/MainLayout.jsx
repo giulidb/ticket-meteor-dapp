@@ -13,9 +13,8 @@ export const MainLayout = ({content}) => (
                         <li><a href=""></a></li>
                         <li><a href="/"><span><h3>Events</h3></span></a></li>
                         <li><a href="/transportServices"><span><h3>Transport</h3></span></a></li>
-                        <li><a href="/myAccounts"><span><h3>Exchange</h3></span></a></li>
-                        <li><a href="/admin"><span><h3>Resume</h3></span></a></li>
-                        <li><a href=""></a></li>             
+                        <li><a href="/exchange"><span><h3>Exchange</h3></span></a></li>
+                        <li><a href="/admin"><span><h3>Admin</h3></span></a></li>
                     </ul>
                 </nav>
                 

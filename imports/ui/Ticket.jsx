@@ -2,12 +2,11 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import NumericInput from 'react-numeric-input';
 import Web3 from 'web3';
-
 // Ethereum libraries and contracts
 import web3, { selectContractInstance, mapReponseToJSON } from '../api/ethereum/web3.js';
 import event_artifacts from '../api/ethereum/truffle/build/contracts/Event.json'
 
-// Contract component - represents a single todo item
+
 export default class Ticket extends Component {
 
     constructor(){
@@ -17,8 +16,8 @@ export default class Ticket extends Component {
             total_price: "",
             value : "1",
             account: Session.get('account'),
-            gasPrice: 100000000000,
-            gas: 2500000,
+            gasPrice: Session.get('gasPrice'),
+            gas: Session.get('gas'),
             ticket_left: "",
             MyTickets: "",
             used: ""
@@ -38,10 +37,11 @@ export default class Ticket extends Component {
         }
         
     async ResultEvent(){
+            var self = this;
             this.TicketsList = await selectContractInstance(event_artifacts,this.props.contract_address);
             this.TicketsList.TicketPayed(function(error,log){
                 if(!error){
-                    this.refreshValue();
+                    self.refreshValue();
                 }
             });
 

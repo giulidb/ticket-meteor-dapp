@@ -9,18 +9,18 @@ import { Meteor } from 'meteor/meteor';
 import web3, { selectContractInstance, mapReponseToJSON } from '../../api/ethereum/web3.js';
  
 
-export default class AccountsSettings extends Component {
+export default class Exchange extends Component {
 
     constructor(){
         super();
 
         this.state = {
              subscription: {
-            accounts: Meteor.subscribe('allAccounts')},
-            eur: '0',
-            eth: '0',
-            fee: '0',
-            total: '0'
+                    accounts: Meteor.subscribe('allAccounts')},
+                    eur: '0',
+                    eth: '0',
+                    fee: '0',
+                    total: '0'
 
         }
         
@@ -41,14 +41,14 @@ export default class AccountsSettings extends Component {
     }
 
     buy(){
-        console.log(this.refs.total.value);
-        // Simulate server Transaction
-        console.log(EthAccounts.findOne({address: Session.get('account')}));
-        Meteor.call('sendEther',Session.get('account'),EthTools.toWei(this.refs.total.value,"eur"));
-        Bert.alert('Congratulations! Ethers bought correctly','success','growl-top-right','fa-smile-o');
-        console.log("Account: "+Session.get('account')+" balance: ");
-        console.log(EthAccounts.findOne({address: Session.get('account')}));
-        console.log(EthAccounts.find({}).fetch());
+            // Simulate server Transaction
+            console.log(EthAccounts.findOne({address: Session.get('account')}));
+            Meteor.call('sendEther',Session.get('account'),EthTools.toWei(this.refs.total.value,"eur"),(error, response)=>{
+                    if(!error)
+                        console.log("Ethers sent");}
+            );
+    
+            Bert.alert('Congratulations! Your request has been sent correctly','success','growl-top-right','fa-smile-o');
 
     }
 
