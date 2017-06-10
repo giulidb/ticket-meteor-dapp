@@ -22,9 +22,11 @@ export default class Admin extends TrackerReact(Component){
 
     async getBalance(){
         if(Session.get('coinbase')){
-                var balance = await web3.eth.getBalance(Session.get('coinbase')).valueOf();
-                Session.set('ownerBalance',balance);}
-     }
+                web3.eth.getBalance(Session.get('coinbase'),(error, response)=>{
+                   if(!error)
+                    Session.set("ownerBalance",response.valueOf());});
+        }
+    }    
 
     componentWillUnmount(){
         this.state.subscription.events.stop();

@@ -38,7 +38,7 @@ var ticketPrice2 = web3.toWei(0.90, 'ether');
 var ticketPrice3 = web3.toWei(1.40, 'ether');
 var ticketPrice4 = web3.toWei(1.83, 'ether');
 var depositQuota = web3.toWei(0.0032, 'ether');
-var eventTimestamp = 1498338000; // 06/24/2017 @9:00pm (UTC)
+var eventTimestamp = 1501623058; // 06/24/2017 @9:00pm (UTC)
 
 
 // Usable contrac abstractions
@@ -86,7 +86,7 @@ Event.new("ArcadeFire Concert", eventTimestamp, 4, { from: fromAddr, gasPrice: g
 });
 
 
-Event.new("Eddie Vedder Concert", eventTimestamp, 4, { from: fromAddr, gasPrice: gasPrice, gas: gas }).then(function(instance2) {
+Event.new("Eddie Vedder Concert", 1502746258, 4, { from: fromAddr, gasPrice: gasPrice, gas: gas }).then(function(instance2) {
     Event.at(instance2.address).then(function(inst2) {
         console.log("Contract created");
         // save contract address in the collection
@@ -107,7 +107,7 @@ Event.new("Eddie Vedder Concert", eventTimestamp, 4, { from: fromAddr, gasPrice:
 });
 
 
-Event.new("Turandot", eventTimestamp, 4, { from: fromAddr, gasPrice: gasPrice, gas: gas }).then(function(instance3) {
+Event.new("Turandot", 1503437458, 4, { from: fromAddr, gasPrice: gasPrice, gas: gas }).then(function(instance3) {
     console.log(instance3.address);
     Event.at(instance3.address).then(function(inst3) {
         console.log("Contract created: "+instance3.address);

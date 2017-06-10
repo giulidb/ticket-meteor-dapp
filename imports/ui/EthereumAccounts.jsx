@@ -13,9 +13,11 @@ export default class EthereumAccounts extends Component{
 async getBalance(){
     
     if(Session.get('account')){
-        var balance = await web3.eth.getBalance(Session.get('account')).valueOf();
-        Session.set('accountBalance',balance);}
+        web3.eth.getBalance(Session.get('account'),(error, response)=>{
+                   if(!error)
+                        Session.set("accountBalance",response.valueOf());});
     }
+}
 
 
   render() {

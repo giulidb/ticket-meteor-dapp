@@ -1,5 +1,3 @@
-var DefaultBuilder = require("truffle-default-builder");
-
 module.exports = {
     networks: {
         development: {

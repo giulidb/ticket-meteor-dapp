@@ -23,9 +23,12 @@ export default class Contract extends TrackerReact(Component) {
  }
 
 async componentWillMount(){
-    var balance = await web3.eth.getBalance(this.props.contract.address).valueOf();
-    this.setState({wei: balance});
-
+    var self = this;
+    web3.eth.getBalance(this.props.contract.address,(error, response)=>{
+                    var balance = response.valueOf();
+                   if(!error)
+                        self.setState({wei: balance});
+     });
 }
 
 async verifyIdentity(){
