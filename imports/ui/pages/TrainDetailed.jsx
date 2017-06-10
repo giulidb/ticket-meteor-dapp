@@ -96,6 +96,7 @@ async refreshStatus(){
                                     case "requested":
                                             var requestTime = new Date(TicketItemResp[1].valueOf() * 1000);
                                             var deadline = new Date(requestTime.getTime() + 30*60000);  
+                                            tempStatus.value = "requested";
                                             tempStatus.label = "Waiting for emission in blockchain, if the the ticket will be not emitted within the  "+
                                                                 ("0" + (deadline.getDate())).slice(-2) + "/" + ("0" + (deadline.getMonth() + 1)).slice(-2) + "/" + deadline.getFullYear()+" at " +
                                                                 ("0" + (deadline.getHours() + 1)).slice(-2) + ":" + ("0" + (deadline.getMinutes() + 1)).slice(-2) +
@@ -183,13 +184,14 @@ async refreshStatus(){
             Bert.alert('Congratulations! Your transaction has been successful!','success','growl-top-right','fa-smile-o');
             var numTicket = await this.Transport.numTickets.call(this.state.account);
             Session.set("Index",numTicket.valueOf()-1);
+            this.refreshStatus();
             var self = this;
-            Meteor.call("configureTicket",this.state.Train, this.state.account,(error, response)=>{
+            /*Meteor.call("configureTicket",this.state.Train, this.state.account,(error, response)=>{
                         console.log(error);
                         console.log("Configure Ticket Done");
                         self.startEventListerner();
 
-                });
+                });*/
 
     } 
 
