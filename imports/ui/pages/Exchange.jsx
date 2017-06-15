@@ -87,7 +87,7 @@ export default class Exchange extends Component {
                     </div>
                     <div className="col col-4 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                            <input ref="Eth" className='form-control' value = {this.state.fee} disabled={true}/>
+                            <input ref="Eth" className='form-control' value = {this.state.fee} readOnly={true}/>
                         </span>
                     </div>    
                  </div>
@@ -101,7 +101,7 @@ export default class Exchange extends Component {
                     </div>
                     <div className="col col-4 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                            <input ref="fee" className='form-control' value = {this.state.fee} disabled={true}/>
+                            <input ref="fee" className='form-control' value = {this.state.fee} readOnly={true}/>
                         </span>
                     </div>    
                  </div>
@@ -114,7 +114,7 @@ export default class Exchange extends Component {
                     </div>
                     <div className="col col-4 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
-                            <input ref="total" className='form-control' value = {this.state.total} disabled={true}/>
+                            <input ref="total" className='form-control' value = {this.state.total} readOnly={true}/>
                         </span>
                     </div>    
                  </div>

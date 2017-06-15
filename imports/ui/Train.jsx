@@ -100,10 +100,10 @@ export default class Train extends Component {
   render() {
 
     return(
-        <li>
-            <hr/>   
-                <div className="row clear">
-                <button  onClick={this.setTrain.bind(this)}> 
+        <div>
+            <hr/>
+                <li>
+                    <div className="row clear">
                        
                     <div className="col col-2 tablet-col-2 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
@@ -138,9 +138,15 @@ export default class Train extends Component {
                                 <span>{EthTools.formatBalance(EthTools.toWei(this.state.price,'eur'),'0.00','ether')} ETH</span>
                         </span>
                     </div> 
-            </button>
+                    <div className="col col-1 tablet-col-11 mobile-col-1-2">
+                        <span className="no-tablet no-mobile">
+                                             <h3><button  onClick={this.setTrain.bind(this)}>Buy</button></h3>
+
+                        </span>
+                    </div> 
            </div>
-        </li>            
+         </li>
+        </div>            
     );
 
   }

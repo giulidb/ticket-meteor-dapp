@@ -124,7 +124,7 @@ ticketIdChange(e){
                                     <span>Contract Address: <br/>{this.props.contract.address} </span><br/><br/><br/>
                                      <button onClick={this.withdraw.bind(this)}>
                                         <h3>Withdraw Revenue</h3>
-                                        <span>Contract Balance: {web3.fromWei(this.state.wei,'ether')} ETH 
+                                        <span>Contract Balance: {EthTools.formatBalance(this.state.wei, '0.00','ether')} ETH 
                                             / {EthTools.formatBalance(this.state.wei, '0.00', 'eur')}€ </span>
                                     </button>
                     </span>

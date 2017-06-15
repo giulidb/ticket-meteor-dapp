@@ -186,12 +186,12 @@ async refreshStatus(){
             Session.set("Index",numTicket.valueOf()-1);
             this.refreshStatus();
             var self = this;
-            /*Meteor.call("configureTicket",this.state.Train, this.state.account,(error, response)=>{
+            Meteor.call("configureTicket",this.state.Train, this.state.account,(error, response)=>{
                         console.log(error);
                         console.log("Configure Ticket Done");
                         self.startEventListerner();
 
-                });*/
+                });
 
     } 
 

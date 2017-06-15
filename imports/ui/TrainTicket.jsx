@@ -50,7 +50,6 @@ export default class TrainTicket extends Component {
         <li>
             <hr/>
             <div className="row clear">
-                <button  onClick={this.seeTicket.bind(this)}> 
                     <div className="col col-2 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
                           <span>{item.origine}</span>
@@ -71,13 +70,15 @@ export default class TrainTicket extends Component {
                            <span>{item.ticketType}</span>
                         </span>
                     </div>     
-                    <div className="col col-4 tablet-col-11 mobile-col-1-2">
+                    <div className="col col-2 tablet-col-11 mobile-col-1-2">
                         <span className="no-tablet no-mobile">
                           <span>{status}</span>
                         </span>
                     </div>   
-                </button>     
-            </div>
+                     <div className="col col-1 tablet-col-11 mobile-col-1-2">
+                            <button  onClick={this.seeTicket.bind(this)}>View Ticket</button>   
+                    </div>  
+            </div>  
         </li>
     );
 
